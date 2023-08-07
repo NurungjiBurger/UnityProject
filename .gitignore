@@ -51,7 +51,7 @@ ExportedObj/
 *.VC.db
 
 # unity Asset Store Assets
-StoreAssets/
+Assets/StoreAssets/
 
 # Unity3D generated meta files
 *.pidb.meta
