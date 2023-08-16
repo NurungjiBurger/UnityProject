@@ -9,8 +9,12 @@ public class Data
     // 기본 데이터
     public string EndTime = "";
 
+    public int EggLevel;
     public int NowClickCount;
-    public int NeedClickCount;
+    public int ClickPower;
+
+    // 강화 데이터
+    public bool ActivateStack;
 
 
     // 업적 데이터
