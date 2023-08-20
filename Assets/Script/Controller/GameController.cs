@@ -6,6 +6,8 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using System;
 
+using Random = UnityEngine.Random;
+
 public class GameController : MonoBehaviour
 {
     private Data GameData;
@@ -15,6 +17,11 @@ public class GameController : MonoBehaviour
     private GameObject Canvas;
     [SerializeField]
     private GameObject PrefabEgg;
+    [SerializeField]
+    private GameObject[] PrefabObjects;
+
+    private bool IsCreateCharacter = false;
+    private GameObject Character;
 
     private void ExitGame()
     {
@@ -27,7 +34,9 @@ public class GameController : MonoBehaviour
     private void CharacterInform(GameObject obj)
     {
         // 캐릭터 이미지
+        Canvas.transform.Find("ScreenPanels").transform.Find("Inform").transform.Find("Image").GetComponent<Image>().sprite = obj.transform.Find("ObjImage").GetComponent<SpriteRenderer>().sprite;
         // 캐릭터 이름
+        Canvas.transform.Find("ScreenPanels").transform.Find("Inform").transform.Find("Text").GetComponent<TextMeshProUGUI>().text = obj.name;
     }
     private void EggManager()
     {
@@ -43,17 +52,31 @@ public class GameController : MonoBehaviour
             }
             if (GameData.NeedClickCount <= GameData.NowClickCount)
             {
+                // egg obj 삭제
                 Destroy(obj);
                 // 캐릭터 생성
+                //GameObject tmp
+                Character = Instantiate(PrefabObjects[Random.Range(0, PrefabObjects.Length)], new Vector3(0.0f, 0.0f, 0.0f), Quaternion.identity);
+                Character.transform.SetParent(Canvas.transform);
+                Character.transform.SetSiblingIndex(1);
+                Character.name = Character.name.Substring(0, Character.name.IndexOf('('));
+                IsCreateCharacter = true;
+
                 GameData.NowClickCount = 0;
-                GameData.NeedClickCount *= 2;
+                //GameData.NeedClickCount *= 2;
                 Canvas.transform.Find("ScreenPanels").transform.Find("Inform").gameObject.SetActive(true);
                 // 캐릭터 정보 넘기기
-                //CharacterInform(obj);
+                CharacterInform(Character);
             }
         }
         else
         {
+            // 생성된 캐릭터 삭제
+            Character = Canvas.transform.GetChild(1).gameObject;
+            Destroy(Character);
+            IsCreateCharacter = false;
+
+            // egg obj 생성
             obj = Instantiate(PrefabEgg, new Vector3(0.0f, 0.0f, 0.0f), Quaternion.identity);
             obj.transform.SetParent(Canvas.transform);
             obj.transform.SetSiblingIndex(1);
@@ -91,6 +114,7 @@ public class GameController : MonoBehaviour
                     break;
                 case "ConfirmButton":
                     Canvas.transform.Find("ScreenPanels").transform.Find("Inform").gameObject.SetActive(false);
+                    // Cafe로 캐릭터 이동
                     EggManager();
                     break;
                 default:
@@ -169,6 +193,11 @@ public class GameController : MonoBehaviour
             if (GameData != null) GameData.EndTime = DateTime.Now.ToString();
             ExitGame();
         }        
+
+        if (IsCreateCharacter)
+        {
+            Character.transform.Rotate(new Vector3(0, 90, 0) * Time.deltaTime);
+        }
     }
 
     private void FixedUpdate()
