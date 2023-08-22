@@ -14,8 +14,14 @@ public class Data
     public int NowClickCount = 0;
     public int ClickPower = 1;
 
+    public int Gold = 0;
+    public int Gem = 0;
+
     // 강화 데이터
-    public bool ActivateStack;
+    public bool ActivateStack = false;
+    public bool FirstEnhanceStack = false;
+    public bool SecondEnhanceStack = false;
+
 
 
     // 업적 데이터
