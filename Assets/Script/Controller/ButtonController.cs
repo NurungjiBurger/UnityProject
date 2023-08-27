@@ -10,21 +10,47 @@ public class ButtonController : MonoBehaviour
 {
     GameObject GameController;
     private GameObject Canvas;
+    [SerializeField]
+    private GameObject Data;
 
     private bool IsCreateCharacter;
     private GameObject Character;
     private Data GameData;
     private int TimeStack;
 
-    Type type;
+    Type GameDataType;
+    Type ScriptType;
 
-    public void EnhanceManager(GameObject obj)
+    private void AchieveManager(GameObject obj)
     {
-        String CostType = obj.transform.Find("Cost").transform.Find("Image").Find("CostType").GetComponent<TextMeshProUGUI>().text;
+        String CostType = obj.transform.Find("Reward").transform.Find("Image").Find("Type").GetComponent<TextMeshProUGUI>().text;
+        int Reward = Convert.ToInt32(obj.transform.Find("Reward").Find("Quantity").GetComponent<TextMeshProUGUI>().text);
+
+        switch(CostType)
+        {
+            case "GOLD":
+                GameData.NowGold += Reward;
+                GameData.Gold += Reward;
+                break;
+            case "GEM":
+                GameData.NowGem += Reward;
+                GameData.Gem += Reward;
+                break;
+            default:
+                break;
+        }
+
+        GameDataType = GameData.GetType();
+        GameDataType.GetField("Acquire" + obj.gameObject.name).SetValue(GameData, true);
+    }
+
+    private void EnhanceManager(GameObject obj)
+    {
+        String CostType = obj.transform.Find("Cost").transform.Find("Image").Find("Type").GetComponent<TextMeshProUGUI>().text;
         int Cost = Convert.ToInt32(obj.transform.Find("Cost").Find("Quantity").GetComponent<TextMeshProUGUI>().text);
 
-        int DepositGold = Convert.ToInt32(GameData.Gold);
-        int DepositGem = Convert.ToInt32(GameData.Gem);
+        int DepositGold = Convert.ToInt32(GameData.NowGold);
+        int DepositGem = Convert.ToInt32(GameData.NowGem);
 
         bool result;
 
@@ -32,19 +58,32 @@ public class ButtonController : MonoBehaviour
         {
             case "GOLD":
                 result = DepositGold >= Cost;
-                GameData.Gold = result ? DepositGold - Cost  : DepositGold - 0;
+                GameData.NowGold = result ? DepositGold - Cost  : DepositGold - 0;
                 break;
             case "GEM":
                 result = DepositGem >= Cost;
-                GameData.Gem = result ? DepositGem - Cost : DepositGem - 0;
+                GameData.NowGem = result ? DepositGem - Cost : DepositGem - 0;
                 break;
             default:
                 result = false;
                 break;
         }
 
-        type = GameData.GetType();
-        type.GetField(obj.gameObject.name).SetValue(GameData, result);
+        if (result) GameData.EnhanceNum++;
+        GameDataType = GameData.GetType();
+        GameDataType.GetField(obj.gameObject.name).SetValue(GameData, result);
+    }
+    public void PerformRequest()
+    {
+        GameObject RequestObject;
+
+        if (GameController != null)
+        {
+            RequestObject = GameController.GetComponent<GameController>().REQUESTOBJECT;
+
+            if (RequestObject.transform.parent.parent.parent.name == "Achievement") AchieveManager(RequestObject);
+            else if (RequestObject.transform.parent.parent.parent.name == "Enhance") EnhanceManager(RequestObject);
+        }
     }
     private void CharacterInform(GameObject obj)
     {
@@ -69,11 +108,27 @@ public class ButtonController : MonoBehaviour
                 // egg obj 삭제
                 Destroy(obj);
                 GameData.Gold += 100;
+                GameData.NowGold += 100;
                 // 캐릭터 생성
                 Character = GameController.GetComponent<GameController>().CreatePrefab("Character", -1, new Vector3(0.0f, 0.0f, 0.0f));
                 Character.transform.SetParent(Canvas.transform);
                 Character.transform.SetSiblingIndex(1);
                 Character.name = Character.name.Substring(0, Character.name.IndexOf('('));
+                switch(Character.transform.tag)
+                {
+                    case "Person":
+                        GameData.PersonNum++;
+                        break;
+                    case "Animal":
+                        GameData.AnimalNum++;
+                        break;
+                    case "Etc":
+                        GameData.EtcNum++;
+                        break;
+                    default:
+                        break;
+                }
+                GameData.CharacterNum++;
 
                 GameData.NowClickCount = 0;
                 //GameData.NeedClickCount *= 2;
@@ -103,6 +158,7 @@ public class ButtonController : MonoBehaviour
         TimeStack = 0;
         Canvas.transform.Find("UpPanels").transform.Find("StackButton").transform.Find("Stack").GetComponent<TextMeshProUGUI>().text = Convert.ToString(TimeStack);
         Canvas.transform.Find("UpPanels").transform.Find("StackButton").GetComponent<Button>().interactable = false;
+        GameData.TimeStackNum++;
     }
     public void CameraModeManager()
     {
@@ -120,7 +176,7 @@ public class ButtonController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        GameController = GameObject.Find("GameController").GetComponent<GameController>().gameObject;
     }
 
     // Update is called once per frame
@@ -132,28 +188,84 @@ public class ButtonController : MonoBehaviour
             Canvas = GameObject.Find("Canvas").gameObject;
             GameData = GameController.GetComponent<GameController>().GAMEDATA;
             TimeStack = GameController.GetComponent<GameController>().TIMESTACK;
-            IsCreateCharacter = GameController.GetComponent<GameController>().ISCREATECHARACTER;
-
+            IsCreateCharacter = GameController.GetComponent<GameController>().ISCREATECHARACTER;            
         }
 
-        if (this.name == "Button")
+        if (GameData != null)
         {
-            type = GameData.GetType();
-
-            if (type.GetField(transform.parent.name).GetValue(GameData) != null)
+            if (this.name == "Button" && this.transform.parent.parent.parent.parent.name == "Enhance")
             {
-                bool val = Convert.ToBoolean(type.GetField(transform.parent.name).GetValue(GameData));
+                // 데이터에서 강화 변수를 리플렉션으로 값을 얻어와 판단하고 UI 액티브 설정
+                GameDataType = GameData.GetType();
 
-                transform.parent.transform.Find("Complete").gameObject.SetActive(val);
-                GetComponent<Button>().interactable = !(val);
-
-                if (transform.parent.Find("Prerequisites").GetComponent<TextMeshProUGUI>().text != "None")
+                if (GameDataType.GetField(transform.parent.name).GetValue(GameData) != null)
                 {
-                    bool preval = Convert.ToBoolean(type.GetField(transform.parent.Find("Prerequisites").GetComponent<TextMeshProUGUI>().text).GetValue(GameData));
-                    transform.parent.transform.Find("CanNotUse").gameObject.SetActive(!preval);
-                    GetComponent<Button>().interactable = preval;
+
+                    bool Clear = Convert.ToBoolean(GameDataType.GetField(transform.parent.name).GetValue(GameData));
+                    // 선행조건이 필요한 강화의 경우 처음에 비활성화
+                    if (transform.parent.Find("Prerequisites").GetComponent<TextMeshProUGUI>().text != "None")
+                    {
+                        if (!Clear)
+                        {
+                            bool PreClear = Convert.ToBoolean(GameDataType.GetField(transform.parent.Find("Prerequisites").GetComponent<TextMeshProUGUI>().text).GetValue(GameData));
+                            transform.parent.transform.Find("CanNotUse").gameObject.SetActive(!PreClear);
+                            GetComponent<Button>().interactable = PreClear;
+                        }
+                        else
+                        {
+                            transform.parent.transform.Find("Complete").gameObject.SetActive(Clear);
+                            GetComponent<Button>().interactable = !Clear;
+                        }
+
+                    }
+                    else
+                    {
+                        transform.parent.transform.Find("Complete").gameObject.SetActive(Clear);
+                        GetComponent<Button>().interactable = !Clear;
+                    }
+                }
+            }
+            else if (this.name == "Button" && this.transform.parent.parent.parent.parent.name == "Achievement")
+            {
+                GameDataType = GameData.GetType();
+                ScriptType = GameController.GetComponent<Achievement>().GetType();
+
+                // 데이터에서 업적 변수를 리플렉션
+                if (GameDataType.GetField(transform.parent.name) != null)
+                {
+                    bool Clear = Convert.ToBoolean(GameDataType.GetField(transform.parent.name).GetValue(GameData));
+                    bool Acquire = Convert.ToBoolean(GameDataType.GetField("Acquire" + transform.parent.name).GetValue(GameData));
+
+                    if (Clear)
+                    {
+                        if (Acquire)
+                        {
+                            transform.parent.transform.Find("Complete").gameObject.SetActive(Clear);
+                            GetComponent<Button>().interactable = !Clear;
+                        }
+                        else
+                        {
+                            transform.parent.transform.Find("Complete").gameObject.SetActive(!Clear);
+                            GetComponent<Button>().interactable = Clear;
+                        }
+                    }
+                    else
+                    {
+                        bool result = false;
+
+                        if (ScriptType.GetMethod(transform.parent.name) != null)
+                        {
+                            // 스크립트에서 해당 변수와 동일한 이름의 함수를 리플렉션으로 실행
+                            // 값을 리턴 받아서 업적 데이터 갱신
+                            result = Convert.ToBoolean(ScriptType.GetMethod(transform.parent.name).Invoke(GameController.GetComponent<Achievement>(), null));
+                            GameDataType.GetField(transform.parent.name).SetValue(GameData, result);
+                        }
+
+                        GetComponent<Button>().interactable = (result);
+                    }
                 }
             }
         }
+        
     }
 }

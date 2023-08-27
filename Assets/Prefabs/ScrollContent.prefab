@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5665091097388976142}
   - component: {fileID: 2231606600600212802}
   m_Layer: 5
-  m_Name: Cost
+  m_Name: Cost/Reward
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -212,6 +212,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3083129507b21834ca87890d2157f494, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Data: {fileID: 0}
 --- !u!1 &3080447157288344489
 GameObject:
   m_ObjectHideFlags: 0
@@ -453,7 +454,7 @@ GameObject:
   - component: {fileID: 7983000818080626460}
   - component: {fileID: 1785512663511036386}
   m_Layer: 5
-  m_Name: Text
+  m_Name: Type
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -588,7 +589,7 @@ GameObject:
   - component: {fileID: 7833310853825639165}
   - component: {fileID: 7833310853825639164}
   m_Layer: 5
-  m_Name: EnhanceScrollContent
+  m_Name: ScrollContent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -960,7 +961,7 @@ GameObject:
   - component: {fileID: 6455541822372706802}
   - component: {fileID: 6229579390754368021}
   m_Layer: 5
-  m_Name: Text
+  m_Name: Quantity
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

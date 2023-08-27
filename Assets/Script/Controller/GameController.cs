@@ -10,9 +10,8 @@ using Random = UnityEngine.Random;
 
 public class GameController : MonoBehaviour
 {
-    private Data GameData;
-
     private int TimeStack = -1;
+    private Data GameData;
 
     [SerializeField]
     private GameObject Canvas;
@@ -20,9 +19,17 @@ public class GameController : MonoBehaviour
     private GameObject PrefabEgg;
     [SerializeField]
     private GameObject[] PrefabObjects;
+    [SerializeField]
+    private GameObject Gem;
+    [SerializeField]
+    private GameObject Gold;
+    [SerializeField]
+    private GameObject Level;
 
     private bool IsCreateCharacter = false;
     private GameObject Character;
+
+    private GameObject RequestObejct = null;
 
 
     /////////////////////////////////
@@ -30,7 +37,12 @@ public class GameController : MonoBehaviour
     public int TIMESTACK { get { return TimeStack; } }
     public Data GAMEDATA { get { return GameData; } }
     public bool ISCREATECHARACTER { get { return IsCreateCharacter; } }
+    public GameObject REQUESTOBJECT { get { return RequestObejct; } }
 
+    public void SaveRequestObejct(GameObject obj)
+    {
+        RequestObejct = obj;
+    }
     private void ExitGame()
     {
 #if UNITY_EDITOR
@@ -86,16 +98,19 @@ public class GameController : MonoBehaviour
                 TimeStack = 0;
             }
             // 누적 스택 계산
-            else {
+            else
+            {
                 DateTime StartTime = DateTime.Now;
                 TimeSpan TimeDiff = StartTime - Convert.ToDateTime(GameData.EndTime);
                 TimeStack = Convert.ToInt32(TimeDiff.TotalSeconds);
                 // 누적되는 스택은 걍화단계에 따라 다름
-                
+
             }
             Canvas.transform.Find("UpPanels").transform.Find("StackButton").transform.Find("Stack").GetComponent<TextMeshProUGUI>().text = Convert.ToString(TimeStack);
         }
+        else TimeStack = 0;
 
+        GameData.TImeStack += TimeStack;
     }
     private void Awake()
     {
@@ -133,8 +148,10 @@ public class GameController : MonoBehaviour
             Character.transform.Rotate(new Vector3(0, 90, 0) * Time.deltaTime);
         }
 
-        Canvas.transform.Find("UpPanels").transform.Find("Gold").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.Gold);
-        Canvas.transform.Find("UpPanels").transform.Find("Gem").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.Gem);
-        Canvas.transform.Find("UpPanels").transform.Find("Level").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.EggLevel);
+        Canvas.transform.Find("UpPanels").Find("Gold").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.NowGold);
+        Canvas.transform.Find("UpPanels").Find("Gem").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.NowGem);
+        Canvas.transform.Find("UpPanels").Find("Level").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.EggLevel);
+        Canvas.transform.Find("UpPanels").Find("HPRatio").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString((1.0 - (GameData.NowClickCount / GameData.NeedClickCount)) * 100) + "%";
+        Canvas.transform.Find("UpPanels").Find("HP").Find("NowHP").GetComponent<Image>().fillAmount = 1.0f - (GameData.NowClickCount / GameData.NeedClickCount);
     }
 }
