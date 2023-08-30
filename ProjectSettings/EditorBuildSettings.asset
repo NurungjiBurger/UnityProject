@@ -8,4 +8,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Game.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/Caffe.unity
+    guid: c1a21af4eddb55c45b6eebdb62b8b645
   m_configObjects: {}

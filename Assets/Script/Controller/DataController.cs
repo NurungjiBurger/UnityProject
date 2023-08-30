@@ -10,8 +10,10 @@ public class DataController : MonoBehaviour
 
     private Data gameData;
 
-    public Data GameData { get { return gameData; } }
+    private static DataController Instance = null;
 
+    public Data GameData { get { return gameData; } }
+    public static DataController INSTANCE { get { return Instance; } }
     // 게임데이터 삭제
     public void DeleteGameData()
     {
@@ -57,6 +59,12 @@ public class DataController : MonoBehaviour
         // PC용 패스 ( 테스트용 )
         filePath = Path.Combine(Application.dataPath, dataFile);
 
+        if (Instance)
+        {
+            DestroyImmediate(gameObject);
+            return;
+        }
+        Instance = this;
         DontDestroyOnLoad(gameObject);
     }
 

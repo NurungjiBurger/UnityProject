@@ -6,10 +6,12 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using System;
 
+using Random = UnityEngine.Random;
 public class ButtonController : MonoBehaviour
 {
     GameObject GameController;
     private GameObject Canvas;
+    private GameObject Caffe;
     [SerializeField]
     private GameObject Data;
 
@@ -122,46 +124,59 @@ public class ButtonController : MonoBehaviour
                 Destroy(obj);
                 GameData.Gold += 100;
                 GameData.NowGold += 100;
-                // 캐릭터 생성
-                Character = GameController.GetComponent<GameController>().CreatePrefab("Character", -1, new Vector3(0.0f, 0.0f, 0.0f));
-                Character.transform.SetParent(Canvas.transform);
-                Character.transform.SetSiblingIndex(1);
-                Character.name = Character.name.Substring(0, Character.name.IndexOf('('));
-                switch(Character.transform.tag)
+                // 확률에 따라서 캐릭터 생성
+                if (Random.Range(0, 100) <= GameData.HatchProbability)
                 {
-                    case "Person":
-                        GameData.PersonNum++;
-                        break;
-                    case "Animal":
-                        GameData.AnimalNum++;
-                        break;
-                    case "Etc":
-                        GameData.EtcNum++;
-                        break;
-                    default:
-                        break;
+                    Character = GameController.GetComponent<GameController>().CreatePrefab("Character", -1, new Vector3(0.0f, 0.0f, 0.0f));
+                    Character.transform.SetParent(Canvas.transform);
+                    Character.transform.SetSiblingIndex(1);
+                    Character.name = Character.name.Substring(0, Character.name.IndexOf('('));
+                    switch (Character.transform.tag)
+                    {
+                        case "Person":
+                            GameData.PersonNum++;
+                            break;
+                        case "Animal":
+                            GameData.AnimalNum++;
+                            break;
+                        case "Etc":
+                            GameData.EtcNum++;
+                            break;
+                        default:
+                            break;
+                    }
+                    GameData.CharacterNum++;
+
+                    Canvas.transform.Find("ScreenPanels").transform.Find("Inform").gameObject.SetActive(true);
+                    CharacterInform(Character);
                 }
-                GameData.CharacterNum++;
+                else
+                {
+                    // egg obj 생성
+                    obj = GameController.GetComponent<GameController>().CreatePrefab("Egg", 0, new Vector3(0.0f, 0.0f, 0.0f));
+                    obj.transform.SetParent(Canvas.transform);
+                    obj.transform.SetSiblingIndex(1);
+                    obj.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                    obj.gameObject.name = "EggButton";
+                }
 
                 GameData.NowClickCount = 0;
                 //GameData.NeedClickCount *= 2;
-                Canvas.transform.Find("ScreenPanels").transform.Find("Inform").gameObject.SetActive(true);
-                // 캐릭터 정보 넘기기
-                CharacterInform(Character);
             }
         }
         else
         {
-            // 생성된 캐릭터 삭제
+            // 생성된 캐릭터 이동
             Character = Canvas.transform.GetChild(1).gameObject;
-            Destroy(Character);
+            Character.transform.localScale = new Vector3(50.0f, 50.0f, 50.0f);
+            Character.transform.parent = Caffe.transform.Find("ScreenPanels").Find("Field");
+            Character.transform.position = Caffe.transform.position;
 
             // egg obj 생성
             obj = GameController.GetComponent<GameController>().CreatePrefab("Egg", 0, new Vector3(0.0f, 0.0f, 0.0f));
             obj.transform.SetParent(Canvas.transform);
             obj.transform.SetSiblingIndex(1);
             obj.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-            obj.GetComponent<Button>().onClick.AddListener(delegate { EggManager(1); });
             obj.gameObject.name = "EggButton";
         }
     }
@@ -179,12 +194,29 @@ public class ButtonController : MonoBehaviour
     }
     public void ChangeSceneManager(String name)
     {
-        SceneManager.LoadScene(name);
+        if (name == "Caffe")
+        {
+            GameObject.Find("Main Camera").GetComponent<Camera>().depth = -2;
+            GameObject.Find("Caffe Camera").GetComponent<Camera>().depth = -1;
+        }
+        else if (name == "Game")
+        {
+            GameObject.Find("Main Camera").GetComponent<Camera>().depth = -1;
+            GameObject.Find("Caffe Camera").GetComponent<Camera>().depth = -2;
+        }
     }
     public void ScreenOnOff(GameObject obj)
     {
         if (obj.gameObject.activeSelf) obj.gameObject.SetActive(false);
         else obj.gameObject.SetActive(true);
+    }
+    public void SaveRequestObject(GameObject obj)
+    {
+        GameController.GetComponent<GameController>().SaveRequestObejct(obj);
+    }
+    private void Awake()
+    {
+
     }
     // Start is called before the first frame update
     void Start()
@@ -198,7 +230,9 @@ public class ButtonController : MonoBehaviour
         if (GameController == null) GameController = GameObject.Find("GameController").GetComponent<GameController>().gameObject;
         else
         {
+            Data = GameObject.Find("Data").gameObject;
             Canvas = GameObject.Find("Canvas").gameObject;
+            Caffe = GameObject.Find("Caffe").gameObject;
             GameData = GameController.GetComponent<GameController>().GAMEDATA;
             TimeStack = GameController.GetComponent<GameController>().TIMESTACK;
             IsCreateCharacter = GameController.GetComponent<GameController>().ISCREATECHARACTER;            

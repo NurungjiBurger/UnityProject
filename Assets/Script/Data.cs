@@ -18,6 +18,8 @@ public class Data
 
     // 강화나 업적 데이터를 위한 기본 데이터
 
+    public int HatchProbability = 100;
+
     public int ClickPower = 1;
     public int CostForClickPower = 100;
 

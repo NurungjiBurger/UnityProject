@@ -33,14 +33,19 @@ public class GameController : MonoBehaviour
 
     private GameObject RequestObejct = null;
 
+    private static GameController Instance = null;
+
 
     /////////////////////////////////
 
     public int TIMESTACK { get { return TimeStack; } }
     public Data GAMEDATA { get { return GameData; } }
     public bool ISCREATECHARACTER { get { return IsCreateCharacter; } }
+    public GameObject NOWCHARACTER { get { return Character; } }
     public GameObject REQUESTOBJECT { get { return RequestObejct; } }
 
+    
+    public static GameController INSTANCE { get { return Instance; } }
     public void SaveRequestObejct(GameObject obj)
     {
         RequestObejct = obj;
@@ -60,6 +65,7 @@ public class GameController : MonoBehaviour
         {
             case "Egg":
                 IsCreateCharacter = false;
+                Character = null;
                 return Instantiate(PrefabEgg, pos, Quaternion.identity);
                 break;
             case "Character":
@@ -90,6 +96,7 @@ public class GameController : MonoBehaviour
         UserInform.transform.Find("Gem").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.Gem);
         UserInform.transform.Find("UpgradeCount").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.EnhanceNum);
         UserInform.transform.Find("CharacterCount").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.CharacterNum);
+        UserInform.transform.Find("HatchProbabilty").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.HatchProbability) + " %";
     }
     private void SetResolution()
     {
@@ -135,6 +142,12 @@ public class GameController : MonoBehaviour
     }
     private void Awake()
     {
+        if (Instance)
+        {
+            DestroyImmediate(gameObject);
+            return;
+        }
+        Instance = this;
         DontDestroyOnLoad(gameObject);
     }
     void Start()
@@ -164,13 +177,27 @@ public class GameController : MonoBehaviour
             if (TimeStack < 0) CalculateTimeStack();
         }
 
-        if (IsCreateCharacter)
+        if (Canvas == null) Canvas = GameObject.Find("Canvas").gameObject;
+
+        if (SceneManager.GetActiveScene().name == "Game")
         {
-            Character.transform.Rotate(new Vector3(0, 90, 0) * Time.deltaTime);
+            if (UserInform == null) UserInform = GameObject.Find("Canvas").transform.Find("ScreenPanels").Find("UserInformation").gameObject;
+            if (Gem == null) Gem = GameObject.Find("Canvas").transform.Find("UpPanels").Find("Gem").gameObject;
+            if (Gold == null) Gold = GameObject.Find("Canvas").transform.Find("UpPanels").Find("Gold").gameObject;
+            if (Level == null) Level = GameObject.Find("Canvas").transform.Find("UpPanels").Find("Level").gameObject;
+
+            if (UserInform.gameObject.activeSelf) ManageUserInform();
+
+            UpdateUI();
+
+            if (IsCreateCharacter)
+            {
+                Character.transform.Rotate(new Vector3(0, 90, 0) * Time.deltaTime);
+            }
         }
+        else if (SceneManager.GetActiveScene().name == "Caffe")
+        {
 
-        if (UserInform.gameObject.activeSelf) ManageUserInform();
-
-        UpdateUI();
+        }
     }
 }

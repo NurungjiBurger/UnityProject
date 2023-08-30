@@ -76,6 +76,10 @@ public class EnhanceAchievement : MonoBehaviour
         if (GameData.CharacterNum >= 10) return true;
         return false;
     }
+    private void Awake()
+    {
+
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -88,6 +92,7 @@ public class EnhanceAchievement : MonoBehaviour
         if (GameController == null) GameController = GameObject.Find("GameController").GetComponent<GameController>().gameObject;
         else
         {
+            Data = GameObject.Find("Data").gameObject;
             Canvas = GameObject.Find("Canvas").gameObject;
             GameData = Data.GetComponent<DataController>().GameData;
         }
