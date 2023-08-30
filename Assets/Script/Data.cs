@@ -11,13 +11,16 @@ public class Data
 
     public float NeedClickCount = 5.0f;
     public float NowClickCount = 0.0f;
-    public int ClickPower = 1;
 
     public int EggLevel = 1;
     public int NowGold = 0;
     public int NowGem = 0;
 
     // 강화나 업적 데이터를 위한 기본 데이터
+
+    public int ClickPower = 1;
+    public int CostForClickPower = 100;
+
     public int CharacterNum = 0;
     public int PersonNum = 0;
     public int AnimalNum = 0;
@@ -26,14 +29,18 @@ public class Data
 
     public int Gold = 0;
     public int Gem = 0;
+
+    public int TimeInterval = 600;
     public int TimeStackNum = 0;
     public int TImeStack = 0;
 
 
     // 강화 데이터
+    public bool EnhanceClickPower = false;
     public bool ActivateStack = false;
     public bool FirstEnhanceStack = false;
     public bool SecondEnhanceStack = false;
+    public bool ThirdEnhanceStack = false;
 
 
     // 업적 데이터

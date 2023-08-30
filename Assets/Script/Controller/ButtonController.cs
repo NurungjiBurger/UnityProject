@@ -70,8 +70,21 @@ public class ButtonController : MonoBehaviour
         }
 
         if (result) GameData.EnhanceNum++;
-        GameDataType = GameData.GetType();
-        GameDataType.GetField(obj.gameObject.name).SetValue(GameData, result);
+
+        ScriptType = GameController.GetComponent<EnhanceAchievement>().GetType();
+
+        
+        if (result && obj.transform.Find("IsRecursive").Find("Value").GetComponent<TextMeshProUGUI>().text == "True")
+        {
+            ScriptType.GetMethod(obj.name).Invoke(GameController.GetComponent<EnhanceAchievement>(), new object[] { obj });
+        }
+        else
+        {
+            GameDataType = GameData.GetType();
+            GameDataType.GetField(obj.gameObject.name).SetValue(GameData, result);
+
+            if (ScriptType.GetMethod(obj.name) != null) ScriptType.GetMethod(obj.name).Invoke(GameController.GetComponent<EnhanceAchievement>(), new object[] { obj });
+        }
     }
     public void PerformRequest()
     {
@@ -155,10 +168,10 @@ public class ButtonController : MonoBehaviour
     public void AdaptStackDamage()
     {
         EggManager(TimeStack);
+        GameData.TimeStackNum += TimeStack;
         TimeStack = 0;
         Canvas.transform.Find("UpPanels").transform.Find("StackButton").transform.Find("Stack").GetComponent<TextMeshProUGUI>().text = Convert.ToString(TimeStack);
         Canvas.transform.Find("UpPanels").transform.Find("StackButton").GetComponent<Button>().interactable = false;
-        GameData.TimeStackNum++;
     }
     public void CameraModeManager()
     {
@@ -202,33 +215,44 @@ public class ButtonController : MonoBehaviour
                 {
 
                     bool Clear = Convert.ToBoolean(GameDataType.GetField(transform.parent.name).GetValue(GameData));
-                    // 선행조건이 필요한 강화의 경우 처음에 비활성화
-                    if (transform.parent.Find("Prerequisites").GetComponent<TextMeshProUGUI>().text != "None")
+
+                    // 반복적으로 강화가 가능한 경우 계속해서 업데이트 해줘야함
+
+                    if (transform.parent.Find("IsRecursive").Find("Value").GetComponent<TextMeshProUGUI>().text == "True")
                     {
-                        if (!Clear)
+                        transform.parent.Find("Cost").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.CostForClickPower);
+                    }
+                    else
+                    {
+                        // 선행조건이 필요한 강화의 경우 처음에 비활성화
+                        if (transform.parent.Find("Prerequisites").GetComponent<TextMeshProUGUI>().text != "None")
                         {
                             bool PreClear = Convert.ToBoolean(GameDataType.GetField(transform.parent.Find("Prerequisites").GetComponent<TextMeshProUGUI>().text).GetValue(GameData));
-                            transform.parent.transform.Find("CanNotUse").gameObject.SetActive(!PreClear);
-                            GetComponent<Button>().interactable = PreClear;
+
+                            transform.parent.Find("CanNotUse").gameObject.SetActive(!PreClear);
+
+                            if (!PreClear)
+                            {
+                                GetComponent<Button>().interactable = PreClear;
+                            }
+                            else
+                            {
+                                transform.parent.transform.Find("Complete").gameObject.SetActive(Clear);
+                                GetComponent<Button>().interactable = !Clear;
+                            }
                         }
                         else
                         {
                             transform.parent.transform.Find("Complete").gameObject.SetActive(Clear);
                             GetComponent<Button>().interactable = !Clear;
                         }
-
-                    }
-                    else
-                    {
-                        transform.parent.transform.Find("Complete").gameObject.SetActive(Clear);
-                        GetComponent<Button>().interactable = !Clear;
                     }
                 }
             }
             else if (this.name == "Button" && this.transform.parent.parent.parent.parent.name == "Achievement")
             {
                 GameDataType = GameData.GetType();
-                ScriptType = GameController.GetComponent<Achievement>().GetType();
+                ScriptType = GameController.GetComponent<EnhanceAchievement>().GetType();
 
                 // 데이터에서 업적 변수를 리플렉션
                 if (GameDataType.GetField(transform.parent.name) != null)
@@ -257,7 +281,7 @@ public class ButtonController : MonoBehaviour
                         {
                             // 스크립트에서 해당 변수와 동일한 이름의 함수를 리플렉션으로 실행
                             // 값을 리턴 받아서 업적 데이터 갱신
-                            result = Convert.ToBoolean(ScriptType.GetMethod(transform.parent.name).Invoke(GameController.GetComponent<Achievement>(), null));
+                            result = Convert.ToBoolean(ScriptType.GetMethod(transform.parent.name).Invoke(GameController.GetComponent<EnhanceAchievement>(), null));
                             GameDataType.GetField(transform.parent.name).SetValue(GameData, result);
                         }
 

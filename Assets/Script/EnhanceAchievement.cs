@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using System;
 
-public class Achievement : MonoBehaviour
+public class EnhanceAchievement : MonoBehaviour
 {
     [SerializeField]
     GameObject GameController;
@@ -19,6 +19,32 @@ public class Achievement : MonoBehaviour
 
     Type type;
 
+    /////////////////////////////////////////////
+    ///// Enhance
+
+    public void EnhanceClickPower(GameObject obj)
+    {
+        GameData.ClickPower += 1;
+        GameData.CostForClickPower += (int)(GameData.CostForClickPower * 0.1f);
+    }
+    private void EnhanceTimeStack(int interval)
+    {
+        GameData.TimeInterval /= interval;
+    }
+    public void FirstEnhanceStack(GameObject obj)
+    {
+        EnhanceTimeStack(10);
+    }
+    public void SecondEnhanceStack(GameObject obj)
+    {
+        EnhanceTimeStack(10);
+    }
+    public void ThirdEnhanceStack(GameObject obj)
+    {
+        EnhanceTimeStack(2);
+    }
+    /////////////////////////////////////////////
+    ///// Achievement
     public bool FirstCharacter()
     {
         if (GameData.CharacterNum != 0) return true;

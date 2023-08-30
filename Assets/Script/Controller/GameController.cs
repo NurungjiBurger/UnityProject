@@ -16,6 +16,8 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private GameObject Canvas;
     [SerializeField]
+    private GameObject UserInform;
+    [SerializeField]
     private GameObject PrefabEgg;
     [SerializeField]
     private GameObject[] PrefabObjects;
@@ -70,6 +72,25 @@ public class GameController : MonoBehaviour
                 break;
         }
     }
+    private void UpdateUI()
+    {
+        Canvas.transform.Find("UpPanels").Find("Gold").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.NowGold);
+        Canvas.transform.Find("UpPanels").Find("Gem").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.NowGem);
+        Canvas.transform.Find("UpPanels").Find("Level").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.EggLevel);
+        Canvas.transform.Find("UpPanels").Find("HPRatio").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString((1.0 - (GameData.NowClickCount / GameData.NeedClickCount)) * 100) + "%";
+        Canvas.transform.Find("UpPanels").Find("HP").Find("NowHP").GetComponent<Image>().fillAmount = 1.0f - (GameData.NowClickCount / GameData.NeedClickCount);
+    }
+    private void ManageUserInform()
+    {
+        UserInform.transform.Find("EggLevel").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.EggLevel);
+        UserInform.transform.Find("EggHP").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.NeedClickCount - GameData.NowClickCount);
+        UserInform.transform.Find("ClickPower").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.ClickPower);
+        UserInform.transform.Find("TimeStackNum").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.TimeStackNum);
+        UserInform.transform.Find("Gold").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.Gold);
+        UserInform.transform.Find("Gem").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.Gem);
+        UserInform.transform.Find("UpgradeCount").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.EnhanceNum);
+        UserInform.transform.Find("CharacterCount").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.CharacterNum);
+    }
     private void SetResolution()
     {
         // 9 : 16 
@@ -104,7 +125,7 @@ public class GameController : MonoBehaviour
                 TimeSpan TimeDiff = StartTime - Convert.ToDateTime(GameData.EndTime);
                 TimeStack = Convert.ToInt32(TimeDiff.TotalSeconds);
                 // 누적되는 스택은 걍화단계에 따라 다름
-
+                TimeStack /= GameData.TimeInterval;
             }
             Canvas.transform.Find("UpPanels").transform.Find("StackButton").transform.Find("Stack").GetComponent<TextMeshProUGUI>().text = Convert.ToString(TimeStack);
         }
@@ -148,10 +169,8 @@ public class GameController : MonoBehaviour
             Character.transform.Rotate(new Vector3(0, 90, 0) * Time.deltaTime);
         }
 
-        Canvas.transform.Find("UpPanels").Find("Gold").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.NowGold);
-        Canvas.transform.Find("UpPanels").Find("Gem").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.NowGem);
-        Canvas.transform.Find("UpPanels").Find("Level").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.EggLevel);
-        Canvas.transform.Find("UpPanels").Find("HPRatio").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString((1.0 - (GameData.NowClickCount / GameData.NeedClickCount)) * 100) + "%";
-        Canvas.transform.Find("UpPanels").Find("HP").Find("NowHP").GetComponent<Image>().fillAmount = 1.0f - (GameData.NowClickCount / GameData.NeedClickCount);
+        if (UserInform.gameObject.activeSelf) ManageUserInform();
+
+        UpdateUI();
     }
 }
