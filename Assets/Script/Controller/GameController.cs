@@ -12,11 +12,14 @@ public class GameController : MonoBehaviour
 {
     private int TimeStack = -1;
     private Data GameData;
+    private bool Restore = false;
 
     [SerializeField]
     private GameObject Canvas;
     [SerializeField]
     private GameObject UserInform;
+    [SerializeField]
+    private GameObject Collection;
     [SerializeField]
     private GameObject PrefabEgg;
     [SerializeField]
@@ -29,7 +32,7 @@ public class GameController : MonoBehaviour
     private GameObject Level;
 
     private bool IsCreateCharacter = false;
-    private GameObject Character;
+    private GameObject Character = null;
 
     private GameObject RequestObejct = null;
 
@@ -67,15 +70,17 @@ public class GameController : MonoBehaviour
                 IsCreateCharacter = false;
                 Character = null;
                 return Instantiate(PrefabEgg, pos, Quaternion.identity);
-                break;
             case "Character":
                 Character = Instantiate(PrefabObjects[prefabnum], pos, Quaternion.identity);
+                Character.name = Character.name.Substring(0, Character.name.IndexOf('('));
+                float[] Position = new float[3];
+                Position[0] = pos.x; Position[1] = pos.y; Position[2] = pos.z;
+                GameData.CharacterDatas.Add(new CharacterData(Character.name, prefabnum, GameData.CharacterDatas.Count, Position));
+                Character.GetComponent<Character>().Index = GameData.CharacterDatas.Count - 1;
                 IsCreateCharacter = true;
                 return Character;
-                break;
             default:
                 return null;
-                break;
         }
     }
     private void UpdateUI()
@@ -98,16 +103,45 @@ public class GameController : MonoBehaviour
         UserInform.transform.Find("CharacterCount").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.CharacterNum);
         UserInform.transform.Find("HatchProbabilty").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.HatchProbability) + " %";
     }
+    private void ManageColletionInform()
+    {
+        if (GameData.CharacterDatas.Count != 0)
+        {
+            GameObject tmp = Collection.transform.Find("Viewport").Find("Content").gameObject;
+            for (int i = 0; i < tmp.transform.childCount; i++)
+            {
+                if (GameData.CharacterDatas.Count != 0)
+                {
+                    for (int j = 0; j < GameData.CharacterDatas.Count; j++)
+                    {
+                        if (GameData.CharacterDatas[j].Name == tmp.transform.GetChild(i).gameObject.name)
+                        {
+                            tmp.transform.GetChild(i).Find("Image").GetComponent<Image>().color = new Vector4(255.0f, 255.0f, 255.0f, 255.0f);
+                            tmp.transform.GetChild(i).Find("Complete").gameObject.SetActive(true);
+                            tmp.transform.GetChild(i).Find("Button").gameObject.SetActive(true);
+                        }
+                    }
+                }
+            }
+
+            if (RequestObejct != null)
+            {
+                Collection.transform.Find("Details").Find("Image").GetComponent<Image>().sprite = RequestObejct.transform.Find("Image").GetComponent<Image>().sprite;
+                Collection.transform.Find("Details").Find("Name").GetComponent<TextMeshProUGUI>().text = RequestObejct.name;
+                Collection.transform.Find("Details").Find("Description").GetComponent<TextMeshProUGUI>().text = RequestObejct.transform.Find("Description").Find("Text").GetComponent<TextMeshProUGUI>().text;
+            }
+        }
+    }
     private void SetResolution()
     {
         // 9 : 16 
         //Screen.SetResolution((3 / 4) * 1920, 1920, true);
 
         //Default 해상도 비율
-        float fixedAspectRatio = 9f / 16f;
+        //float fixedAspectRatio = 9f / 16f;
 
         //현재 해상도의 비율
-        float currentAspectRatio = (float)Screen.width / (float)Screen.height;
+        //float currentAspectRatio = (float)Screen.width / (float)Screen.height;
 
         //현재 해상도 가로 비율이 더 길 경우
         //if (currentAspectRatio > fixedAspectRatio) thisCanvas.matchWidthOrHeight = 1;
@@ -140,6 +174,27 @@ public class GameController : MonoBehaviour
 
         GameData.TImeStack += TimeStack;
     }
+
+    private void RestoreCharacter()
+    {
+        if (GameData.CharacterDatas.Count != 0)
+        {
+            CharacterData tmp;
+            for (int i = 0; i < GameData.CharacterDatas.Count; i++)
+            {
+                tmp = GameData.CharacterDatas[i];
+
+                Character = Instantiate(PrefabObjects[tmp.PrfNum], new Vector3(0.0f, 0.0f, 0.0f), Quaternion.identity);
+                Character.name = Character.name.Substring(0, Character.name.IndexOf('('));
+                Character.transform.parent = GameObject.Find("Caffe").transform.Find("ScreenPanels").Find("Field");
+                Character.transform.localScale = new Vector3(50.0f, 50.0f, 50.0f);
+                Character.transform.localPosition = new Vector3(tmp.Position[0], tmp.Position[1], tmp.Position[2]);
+                Character.GetComponent<Character>().Index = i;
+            }
+        }
+        Restore = true;
+        Character = null;
+    }
     private void Awake()
     {
         if (Instance)
@@ -152,7 +207,7 @@ public class GameController : MonoBehaviour
     }
     void Start()
     {
-        GameData = GameObject.Find("Data").GetComponent<DataController>().GameData;
+
     }
 
     void Update()
@@ -169,12 +224,14 @@ public class GameController : MonoBehaviour
     {
         if (GameData == null)
         {
-            GameData = GameObject.Find("Data").GetComponent<DataController>().GameData;
+            GameData = GameObject.Find("Data").GetComponent<DataController>().GAMEDATA;
         }
         else
         {
             // 누적된 스택 계산
             if (TimeStack < 0) CalculateTimeStack();
+            // 카페에 있는 캐릭터 복구
+            if (!Restore) RestoreCharacter();
         }
 
         if (Canvas == null) Canvas = GameObject.Find("Canvas").gameObject;
@@ -182,14 +239,17 @@ public class GameController : MonoBehaviour
         if (SceneManager.GetActiveScene().name == "Game")
         {
             if (UserInform == null) UserInform = GameObject.Find("Canvas").transform.Find("ScreenPanels").Find("UserInformation").gameObject;
+            if (Collection == null) Collection = GameObject.Find("Canvas").transform.Find("ScreenPanels").Find("Collection").gameObject;
             if (Gem == null) Gem = GameObject.Find("Canvas").transform.Find("UpPanels").Find("Gem").gameObject;
             if (Gold == null) Gold = GameObject.Find("Canvas").transform.Find("UpPanels").Find("Gold").gameObject;
             if (Level == null) Level = GameObject.Find("Canvas").transform.Find("UpPanels").Find("Level").gameObject;
 
-            if (UserInform.gameObject.activeSelf) ManageUserInform();
-
-            UpdateUI();
-
+            if (GameData != null)
+            {
+                if (UserInform.gameObject.activeSelf) ManageUserInform();
+                if (Collection.gameObject.activeSelf) ManageColletionInform();
+                UpdateUI();
+            }
             if (IsCreateCharacter)
             {
                 Character.transform.Rotate(new Vector3(0, 90, 0) * Time.deltaTime);

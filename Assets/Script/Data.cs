@@ -16,6 +16,9 @@ public class Data
     public int NowGold = 0;
     public int NowGem = 0;
 
+    // 캐릭터 데이터
+    public List<CharacterData> CharacterDatas = new List<CharacterData>();
+
     // 강화나 업적 데이터를 위한 기본 데이터
 
     public int HatchProbability = 100;
@@ -66,4 +69,21 @@ public class Data
     // 배경소리
     // 효과음
 
+}
+
+[Serializable]
+public class CharacterData
+{
+    public string Name;
+    public float[] Position = new float[3];
+    public int PrfNum;
+    public int Index;
+
+    public CharacterData(string name, int num, int idx, float[] pos)
+    {
+        Name = name;
+        PrfNum = num;
+        Index = idx;
+        Position = pos;
+    }
 }

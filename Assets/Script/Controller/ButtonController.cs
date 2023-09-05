@@ -12,8 +12,6 @@ public class ButtonController : MonoBehaviour
     GameObject GameController;
     private GameObject Canvas;
     private GameObject Caffe;
-    [SerializeField]
-    private GameObject Data;
 
     private bool IsCreateCharacter;
     private GameObject Character;
@@ -130,7 +128,6 @@ public class ButtonController : MonoBehaviour
                     Character = GameController.GetComponent<GameController>().CreatePrefab("Character", -1, new Vector3(0.0f, 0.0f, 0.0f));
                     Character.transform.SetParent(Canvas.transform);
                     Character.transform.SetSiblingIndex(1);
-                    Character.name = Character.name.Substring(0, Character.name.IndexOf('('));
                     switch (Character.transform.tag)
                     {
                         case "Person":
@@ -166,11 +163,27 @@ public class ButtonController : MonoBehaviour
         }
         else
         {
-            // 생성된 캐릭터 이동
+            // 중복된 캐릭터 생성이면 삭제
             Character = Canvas.transform.GetChild(1).gameObject;
-            Character.transform.localScale = new Vector3(50.0f, 50.0f, 50.0f);
-            Character.transform.parent = Caffe.transform.Find("ScreenPanels").Find("Field");
-            Character.transform.position = Caffe.transform.position;
+            int i = 0;
+
+            for (i = 0; i < GameData.CharacterDatas.Count - 1; i++)
+            {
+                if (GameData.CharacterDatas[i].PrfNum == GameData.CharacterDatas[GameData.CharacterDatas.Count - 1].PrfNum)
+                {
+                    GameData.CharacterDatas.RemoveAt(GameData.CharacterDatas.Count - 1);
+                    Destroy(Character);
+                    Character = null;
+                    break;
+                }
+            }
+            // 생성된 캐릭터 이동
+            if (Character != null)
+            {
+                Character.transform.localScale = new Vector3(50.0f, 50.0f, 50.0f);
+                Character.transform.parent = Caffe.transform.Find("ScreenPanels").Find("Field");
+                Character.transform.position = Caffe.transform.position;
+            }
 
             // egg obj 생성
             obj = GameController.GetComponent<GameController>().CreatePrefab("Egg", 0, new Vector3(0.0f, 0.0f, 0.0f));
@@ -230,7 +243,6 @@ public class ButtonController : MonoBehaviour
         if (GameController == null) GameController = GameObject.Find("GameController").GetComponent<GameController>().gameObject;
         else
         {
-            Data = GameObject.Find("Data").gameObject;
             Canvas = GameObject.Find("Canvas").gameObject;
             Caffe = GameObject.Find("Caffe").gameObject;
             GameData = GameController.GetComponent<GameController>().GAMEDATA;

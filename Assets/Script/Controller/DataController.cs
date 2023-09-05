@@ -5,26 +5,26 @@ using System.IO;
 
 public class DataController : MonoBehaviour
 {
-    private string dataFile = "database.json";
-    private string filePath;
+    private string DataFile = "database.json";
+    private string FilePath;
 
-    private Data gameData;
+    private Data GameData;
 
     private static DataController Instance = null;
 
-    public Data GameData { get { return gameData; } }
+    public Data GAMEDATA { get { return GameData; } }
     public static DataController INSTANCE { get { return Instance; } }
     // 게임데이터 삭제
     public void DeleteGameData()
     {
-        File.Delete(filePath);
+        File.Delete(FilePath);
     }
 
     // 게임데이터 저장
     public void SaveGameData()
     {
-        string jsonData = JsonUtility.ToJson(gameData);
-        File.WriteAllText(filePath, jsonData);
+        string jsonData = JsonUtility.ToJson(GameData);
+        File.WriteAllText(FilePath, jsonData);
         Debug.Log(jsonData);
 
     }
@@ -32,16 +32,16 @@ public class DataController : MonoBehaviour
     // 새로운 게임데이터 생성
     public void NewGameData()
     {
-        gameData = new Data();
+        GameData = new Data();
     }
 
     // 저장된 게임데이터 로드
     public void LoadGameData()
     {
-        if (File.Exists(filePath))
+        if (File.Exists(FilePath))
         {
-            string jsonData = File.ReadAllText(filePath);
-            gameData = JsonUtility.FromJson<Data>(jsonData);
+            string jsonData = File.ReadAllText(FilePath);
+            GameData = JsonUtility.FromJson<Data>(jsonData);
         }
         else NewGameData();
 
@@ -57,7 +57,7 @@ public class DataController : MonoBehaviour
         // 안드로이드용 패스
         //filePath = Application.persistentDataPath + dataFile;
         // PC용 패스 ( 테스트용 )
-        filePath = Path.Combine(Application.dataPath, dataFile);
+        FilePath = Path.Combine(Application.dataPath, DataFile);
 
         if (Instance)
         {
@@ -75,6 +75,6 @@ public class DataController : MonoBehaviour
 
     void Update()
     {
-
+        if (GameData == null) LoadGameData();
     }
 }

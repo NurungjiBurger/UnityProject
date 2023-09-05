@@ -83,7 +83,7 @@ public class EnhanceAchievement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        GameData = Data.GetComponent<DataController>().GameData;
+
     }
 
     // Update is called once per frame
@@ -94,7 +94,7 @@ public class EnhanceAchievement : MonoBehaviour
         {
             Data = GameObject.Find("Data").gameObject;
             Canvas = GameObject.Find("Canvas").gameObject;
-            GameData = Data.GetComponent<DataController>().GameData;
+            GameData = Data.GetComponent<DataController>().GAMEDATA;
         }
     }
 }
