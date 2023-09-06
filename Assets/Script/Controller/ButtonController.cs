@@ -15,6 +15,7 @@ public class ButtonController : MonoBehaviour
 
     private bool IsCreateCharacter;
     private GameObject Character;
+
     private Data GameData;
     private int TimeStack;
 
@@ -183,13 +184,16 @@ public class ButtonController : MonoBehaviour
                 Character.transform.localScale = new Vector3(50.0f, 50.0f, 50.0f);
                 Character.transform.parent = Caffe.transform.Find("ScreenPanels").Find("Field");
                 Character.transform.position = Caffe.transform.position;
+                for(int j = 0; j < 4; j++) Character.transform.Find("BaseCharacter").Find("Buttons").Find("Button" + Convert.ToString(j)).GetComponent<Button>().onClick.AddListener(delegate { SaveRequestObject(Character); });
+
             }
 
             // egg obj »ý¼º
             obj = GameController.GetComponent<GameController>().CreatePrefab("Egg", 0, new Vector3(0.0f, 0.0f, 0.0f));
             obj.transform.SetParent(Canvas.transform);
             obj.transform.SetSiblingIndex(1);
-            obj.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+            obj.transform.localPosition = new Vector3(-30.0f, -70.0f, 0.0f);
+            obj.transform.localScale = new Vector3(4.0f, 2.0f, 2.0f);
             obj.gameObject.name = "EggButton";
         }
     }
@@ -203,7 +207,15 @@ public class ButtonController : MonoBehaviour
     }
     public void CameraModeManager()
     {
+        string tag = GameController.GetComponent<GameController>().REQUESTOBJECT.tag;
+        Vector3 originpsotion = GameController.GetComponent<GameController>().ORIGINCAMERAPOSITION;
+        Vector3 cameraposition = GameObject.Find("Caffe Camera").GetComponent<Camera>().transform.position;
 
+        if (tag == "Person" || tag == "Animal" || tag == "Etc")
+        {
+            if (cameraposition == originpsotion) GameController.GetComponent<GameController>().SetIsCameraOn(true);
+            else GameController.GetComponent<GameController>().SetIsCameraOn(false);
+        }
     }
     public void ChangeSceneManager(String name)
     {

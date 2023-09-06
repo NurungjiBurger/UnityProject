@@ -55,6 +55,9 @@ public class Character : MonoBehaviour
                 case 5:
                     transform.Translate(0.005f * -0.25f, 0.005f * -0.75f, 0.005f * 0.25f);
                     transform.rotation = Quaternion.Euler(0.0f, 135.0f, 0.0f);
+                    // x -x -z
+                    // y y
+                    // z -x z
                     break;
                 // го o
                 case 6:
@@ -83,9 +86,9 @@ public class Character : MonoBehaviour
                 transform.localPosition = new Vector3(transform.localPosition.x, -750.0f, 0.0f);
                 Distance = -1;
             }
-            if (transform.localPosition.y >= 888.0f)
+            if (transform.localPosition.y >= 500.0f)
             {
-                transform.localPosition = new Vector3(transform.localPosition.x, 888.0f, 0.0f);
+                transform.localPosition = new Vector3(transform.localPosition.x, 500.0f, 0.0f);
                 Distance = -1;
             }
             if (transform.localPosition.x >= 500.0f)

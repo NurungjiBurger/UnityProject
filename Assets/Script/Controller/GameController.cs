@@ -21,9 +21,7 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private GameObject Collection;
     [SerializeField]
-    private GameObject PrefabEgg;
-    [SerializeField]
-    private GameObject[] PrefabObjects;
+    private GameObject SelectArrow;
     [SerializeField]
     private GameObject Gem;
     [SerializeField]
@@ -31,8 +29,21 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private GameObject Level;
 
+    [SerializeField]
+    private GameObject PrefabEgg;
+    [SerializeField]
+    private GameObject[] PrefabObjects;
+    [SerializeField]
+    private Sprite[] EggImage;
+
     private bool IsCreateCharacter = false;
     private GameObject Character = null;
+    private GameObject Egg = null;
+
+    private bool IsCameraOn = false;
+    private Vector3 OriginCameraPosition = new Vector3(0.0f, 0.0f, 0.0f);
+    private float OriginCameraZoom = 0.0f;
+    private float ZoomSize = 5;
 
     private GameObject RequestObejct = null;
 
@@ -46,12 +57,16 @@ public class GameController : MonoBehaviour
     public bool ISCREATECHARACTER { get { return IsCreateCharacter; } }
     public GameObject NOWCHARACTER { get { return Character; } }
     public GameObject REQUESTOBJECT { get { return RequestObejct; } }
+    public Vector3 ORIGINCAMERAPOSITION { get { return OriginCameraPosition; } }
+    public float ORIGINCAMERAZOOM { get { return OriginCameraZoom; } }
+    public void SetIsCameraOn(bool val) { IsCameraOn = val; }
 
     
     public static GameController INSTANCE { get { return Instance; } }
     public void SaveRequestObejct(GameObject obj)
     {
-        RequestObejct = obj;
+        if (RequestObejct == obj) RequestObejct = null;
+        else RequestObejct = obj;
     }
     private void ExitGame()
     {
@@ -90,6 +105,25 @@ public class GameController : MonoBehaviour
         Canvas.transform.Find("UpPanels").Find("Level").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.EggLevel);
         Canvas.transform.Find("UpPanels").Find("HPRatio").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString((1.0 - (GameData.NowClickCount / GameData.NeedClickCount)) * 100) + "%";
         Canvas.transform.Find("UpPanels").Find("HP").Find("NowHP").GetComponent<Image>().fillAmount = 1.0f - (GameData.NowClickCount / GameData.NeedClickCount);
+
+        // 남은 HP에 따라 EGG 의 이미지 변경
+        if (Egg != null)
+        {
+            switch ((1.0 - (GameData.NowClickCount / GameData.NeedClickCount)) * 100)
+            {
+                case <=20:
+                    Egg.GetComponent<Image>().sprite = EggImage[0];
+                    break;
+                case <=60:
+                    Egg.GetComponent<Image>().sprite = EggImage[1];
+                    break;
+                case >=80:
+                    Egg.GetComponent<Image>().sprite = EggImage[2];
+                    break;
+                default:
+                    break;
+            }
+        }
     }
     private void ManageUserInform()
     {
@@ -234,18 +268,26 @@ public class GameController : MonoBehaviour
             if (!Restore) RestoreCharacter();
         }
 
+        if (OriginCameraPosition == new Vector3(0.0f, 0.0f, 0.0f) && OriginCameraZoom == 0.0f)
+        {
+            OriginCameraPosition = GameObject.Find("Caffe Camera").transform.position;
+            OriginCameraZoom = GameObject.Find("Caffe Camera").GetComponent<Camera>().orthographicSize;
+        }
+
         if (Canvas == null) Canvas = GameObject.Find("Canvas").gameObject;
 
-        if (SceneManager.GetActiveScene().name == "Game")
+        if (GameObject.Find("Main Camera").GetComponent<Camera>().depth == -1)
         {
             if (UserInform == null) UserInform = GameObject.Find("Canvas").transform.Find("ScreenPanels").Find("UserInformation").gameObject;
             if (Collection == null) Collection = GameObject.Find("Canvas").transform.Find("ScreenPanels").Find("Collection").gameObject;
             if (Gem == null) Gem = GameObject.Find("Canvas").transform.Find("UpPanels").Find("Gem").gameObject;
             if (Gold == null) Gold = GameObject.Find("Canvas").transform.Find("UpPanels").Find("Gold").gameObject;
             if (Level == null) Level = GameObject.Find("Canvas").transform.Find("UpPanels").Find("Level").gameObject;
+            if (Egg == null && Character == null) Egg = GameObject.Find("Canvas").transform.Find("EggButton").gameObject;
 
             if (GameData != null)
             {
+                // UI
                 if (UserInform.gameObject.activeSelf) ManageUserInform();
                 if (Collection.gameObject.activeSelf) ManageColletionInform();
                 UpdateUI();
@@ -254,10 +296,37 @@ public class GameController : MonoBehaviour
             {
                 Character.transform.Rotate(new Vector3(0, 90, 0) * Time.deltaTime);
             }
-        }
-        else if (SceneManager.GetActiveScene().name == "Caffe")
-        {
 
+
+        }
+        else if (GameObject.Find("Main Camera").GetComponent<Camera>().depth == -2)
+        {
+            if (SelectArrow == null) SelectArrow = GameObject.Find("Caffe").transform.Find("ScreenPanels").Find("Filed").Find("SelectArrow").gameObject;
+            else
+            {
+                if (RequestObejct != null)
+                {
+                    if (IsCameraOn)
+                    {
+                        SelectArrow.SetActive(false);
+                        if (Input.GetAxis("Mouse ScrollWheel") > 0) GameObject.Find("Caffe Camera").GetComponent<Camera>().orthographicSize = ZoomSize--;
+                        if (Input.GetAxis("Mouse ScrollWheel") < 0) GameObject.Find("Caffe Camera").GetComponent<Camera>().orthographicSize = ZoomSize++;
+                        //GameObject.Find("Caffe Camera").GetComponent<Camera>().transform.position = RequestObejct.transform.localPosition;
+                        //GameObject.Find("Caffe Camera").GetComponent<Camera>().orthographicSize = 500.0f;
+                    }
+                    else
+                    {
+                        SelectArrow.SetActive(true);
+                        SelectArrow.transform.localPosition = RequestObejct.transform.localPosition + new Vector3(0.0f, 100.0f, 0.0f);
+                        GameObject.Find("Caffe Camera").GetComponent<Camera>().transform.position = OriginCameraPosition;
+                        GameObject.Find("Caffe Camera").GetComponent<Camera>().orthographicSize = OriginCameraZoom;
+                    }
+                }
+                else
+                {
+                    SelectArrow.SetActive(false);
+                }
+            }
         }
     }
 }
