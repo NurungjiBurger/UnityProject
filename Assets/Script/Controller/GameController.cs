@@ -28,6 +28,8 @@ public class GameController : MonoBehaviour
     private GameObject Gold;
     [SerializeField]
     private GameObject Level;
+    [SerializeField]
+    private GameObject CharacterCamera;
 
     [SerializeField]
     private GameObject PrefabEgg;
@@ -41,9 +43,6 @@ public class GameController : MonoBehaviour
     private GameObject Egg = null;
 
     private bool IsCameraOn = false;
-    private Vector3 OriginCameraPosition = new Vector3(0.0f, 0.0f, 0.0f);
-    private float OriginCameraZoom = 0.0f;
-    private float ZoomSize = 5;
 
     private GameObject RequestObejct = null;
 
@@ -57,24 +56,22 @@ public class GameController : MonoBehaviour
     public bool ISCREATECHARACTER { get { return IsCreateCharacter; } }
     public GameObject NOWCHARACTER { get { return Character; } }
     public GameObject REQUESTOBJECT { get { return RequestObejct; } }
-    public Vector3 ORIGINCAMERAPOSITION { get { return OriginCameraPosition; } }
-    public float ORIGINCAMERAZOOM { get { return OriginCameraZoom; } }
-    public void SetIsCameraOn(bool val) { IsCameraOn = val; }
-
-    
+    public void SetIsCameraOn(bool val) { IsCameraOn = val; }    
     public static GameController INSTANCE { get { return Instance; } }
-    public void SaveRequestObejct(GameObject obj)
-    {
-        if (RequestObejct == obj) RequestObejct = null;
-        else RequestObejct = obj;
-    }
-    private void ExitGame()
+
+    public void ExitGame()
     {
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
             Application.Quit();
 #endif
+    }
+    public void SaveRequestObejct(GameObject obj)
+    {
+        // 캐릭터 오브젝트의 경우 클릭시 표시가 OnOff 되기 위해 한번 더 체크
+        if (RequestObejct == obj && (obj.tag == "Person" || obj.tag == "Animal" || obj.tag == "Etc") ) RequestObejct = null;
+        else RequestObejct = obj;
     }
     public GameObject CreatePrefab (String Type, int prefabnum, Vector3 pos)
     {
@@ -172,15 +169,23 @@ public class GameController : MonoBehaviour
         //Screen.SetResolution((3 / 4) * 1920, 1920, true);
 
         //Default 해상도 비율
-        //float fixedAspectRatio = 9f / 16f;
+        float fixedAspectRatio = 9f / 16f;
 
         //현재 해상도의 비율
-        //float currentAspectRatio = (float)Screen.width / (float)Screen.height;
+        float currentAspectRatio = (float)Screen.width / (float)Screen.height;
 
         //현재 해상도 가로 비율이 더 길 경우
-        //if (currentAspectRatio > fixedAspectRatio) thisCanvas.matchWidthOrHeight = 1;
+        if (currentAspectRatio > fixedAspectRatio)
+        {
+            GameObject.Find("Canvas").GetComponent<CanvasScaler>().matchWidthOrHeight = 1;
+            GameObject.Find("Caffe").GetComponent<CanvasScaler>().matchWidthOrHeight = 1;
+        }
         //현재 해상도의 세로 비율이 더 길 경우
-        //else if (currentAspectRatio < fixedAspectRatio) thisCanvas.matchWidthOrHeight = 0;
+        else if (currentAspectRatio < fixedAspectRatio)
+        {
+            GameObject.Find("Canvas").GetComponent<CanvasScaler>().matchWidthOrHeight = 0;
+            GameObject.Find("Caffe").GetComponent<CanvasScaler>().matchWidthOrHeight = 0;
+        }
     }
 
     private void CalculateTimeStack()
@@ -231,6 +236,7 @@ public class GameController : MonoBehaviour
     }
     private void Awake()
     {
+        // 싱글톤
         if (Instance)
         {
             DestroyImmediate(gameObject);
@@ -241,7 +247,7 @@ public class GameController : MonoBehaviour
     }
     void Start()
     {
-
+        SetResolution();
     }
 
     void Update()
@@ -268,12 +274,6 @@ public class GameController : MonoBehaviour
             if (!Restore) RestoreCharacter();
         }
 
-        if (OriginCameraPosition == new Vector3(0.0f, 0.0f, 0.0f) && OriginCameraZoom == 0.0f)
-        {
-            OriginCameraPosition = GameObject.Find("Caffe Camera").transform.position;
-            OriginCameraZoom = GameObject.Find("Caffe Camera").GetComponent<Camera>().orthographicSize;
-        }
-
         if (Canvas == null) Canvas = GameObject.Find("Canvas").gameObject;
 
         if (GameObject.Find("Main Camera").GetComponent<Camera>().depth == -1)
@@ -287,7 +287,7 @@ public class GameController : MonoBehaviour
 
             if (GameData != null)
             {
-                // UI
+                // UI 업데이트
                 if (UserInform.gameObject.activeSelf) ManageUserInform();
                 if (Collection.gameObject.activeSelf) ManageColletionInform();
                 UpdateUI();
@@ -301,30 +301,44 @@ public class GameController : MonoBehaviour
         }
         else if (GameObject.Find("Main Camera").GetComponent<Camera>().depth == -2)
         {
-            if (SelectArrow == null) SelectArrow = GameObject.Find("Caffe").transform.Find("ScreenPanels").Find("Filed").Find("SelectArrow").gameObject;
+            if (CharacterCamera == null) CharacterCamera = GameObject.Find("Character Camera").gameObject;
             else
             {
-                if (RequestObejct != null)
+                // 현재 캐릭터를 선택한 상태인지 확인
+                if (SelectArrow == null) SelectArrow = GameObject.Find("Caffe").transform.Find("ScreenPanels").Find("Filed").Find("SelectArrow").gameObject;
+                else
                 {
-                    if (IsCameraOn)
+                    if (RequestObejct != null)
                     {
-                        SelectArrow.SetActive(false);
-                        if (Input.GetAxis("Mouse ScrollWheel") > 0) GameObject.Find("Caffe Camera").GetComponent<Camera>().orthographicSize = ZoomSize--;
-                        if (Input.GetAxis("Mouse ScrollWheel") < 0) GameObject.Find("Caffe Camera").GetComponent<Camera>().orthographicSize = ZoomSize++;
-                        //GameObject.Find("Caffe Camera").GetComponent<Camera>().transform.position = RequestObejct.transform.localPosition;
-                        //GameObject.Find("Caffe Camera").GetComponent<Camera>().orthographicSize = 500.0f;
+                        // 카메라 모드로 진입
+                        if (IsCameraOn)
+                        {
+                            SelectArrow.SetActive(false);
+                            CharacterCamera.GetComponent<Camera>().depth = -1;
+                            GameObject.Find("Main Camera").GetComponent<Camera>().depth = -2;
+                            GameObject.Find("Caffe Camera").GetComponent<Camera>().depth = -3;
+
+                            CharacterCamera.GetComponent<Camera>().transform.localPosition = new Vector3(RequestObejct.transform.localPosition.x, RequestObejct.transform.localPosition.y, RequestObejct.transform.localPosition.z - 100.0f);
+                            CharacterCamera.GetComponent<Camera>().transform.LookAt(RequestObejct.transform);
+                            CharacterCamera.GetComponent<Camera>().orthographicSize = 1;
+
+                            // 관찰용이므로 클릭하거나 터치하게되면 모드 종료
+                            if (Input.touchCount > 0 || Input.GetMouseButtonDown(0) || Input.GetMouseButton(0) || Input.GetMouseButtonUp(0)) IsCameraOn = !IsCameraOn;
+
+                        }
+                        else
+                        {
+                            SelectArrow.SetActive(true);
+                            SelectArrow.transform.localPosition = RequestObejct.transform.localPosition + new Vector3(0.0f, 100.0f, 0.0f);
+                            GameObject.Find("Main Camera").GetComponent<Camera>().depth = -2;
+                            GameObject.Find("Caffe Camera").GetComponent<Camera>().depth = -1;
+                            CharacterCamera.GetComponent<Camera>().depth = -3;
+                        }
                     }
                     else
                     {
-                        SelectArrow.SetActive(true);
-                        SelectArrow.transform.localPosition = RequestObejct.transform.localPosition + new Vector3(0.0f, 100.0f, 0.0f);
-                        GameObject.Find("Caffe Camera").GetComponent<Camera>().transform.position = OriginCameraPosition;
-                        GameObject.Find("Caffe Camera").GetComponent<Camera>().orthographicSize = OriginCameraZoom;
+                        SelectArrow.SetActive(false);
                     }
-                }
-                else
-                {
-                    SelectArrow.SetActive(false);
                 }
             }
         }

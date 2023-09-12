@@ -81,6 +81,7 @@ public class Character : MonoBehaviour
                     break;
             }
 
+            // 틀 안을 벗어나지 않도록 함
             if (transform.localPosition.y <= -750.0f)
             {
                 transform.localPosition = new Vector3(transform.localPosition.x, -750.0f, 0.0f);
@@ -102,6 +103,7 @@ public class Character : MonoBehaviour
                 Distance = -1;
             }
 
+            // 캐릭터의 위치 데이터 저장
             Position[0] = transform.localPosition.x;
             Position[1] = transform.localPosition.y;
             Position[2] = transform.localPosition.z;
@@ -141,6 +143,7 @@ public class Character : MonoBehaviour
                             Distance = Random.Range(500, 1600);
                             Direction = Random.Range(0, 9);
                         }
+                        // 랜덤으로 주어진 거리만큼을 같은 방향으로 이동
                         Distance -= 1;
                         Moving(Direction);
 

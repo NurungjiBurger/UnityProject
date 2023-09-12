@@ -22,11 +22,17 @@ public class ButtonController : MonoBehaviour
     Type GameDataType;
     Type ScriptType;
 
+    public void AudioPlay()
+    {
+        // 오디오 위탁 재생
+        GameObject.Find("Audio").GetComponent<AudioController>().AudioPlay(GetComponent<AudioSource>());
+    }
     private void AchieveManager(GameObject obj)
     {
         String CostType = obj.transform.Find("Reward").transform.Find("Image").Find("Type").GetComponent<TextMeshProUGUI>().text;
         int Reward = Convert.ToInt32(obj.transform.Find("Reward").Find("Quantity").GetComponent<TextMeshProUGUI>().text);
 
+        // 강화와 달리 업적의 경우 소지금을 계산해서 가능 불가능 여부를 따질 필요가 없이 소지금을 추가해주기만하면 됨
         switch(CostType)
         {
             case "GOLD":
@@ -50,6 +56,7 @@ public class ButtonController : MonoBehaviour
         String CostType = obj.transform.Find("Cost").transform.Find("Image").Find("Type").GetComponent<TextMeshProUGUI>().text;
         int Cost = Convert.ToInt32(obj.transform.Find("Cost").Find("Quantity").GetComponent<TextMeshProUGUI>().text);
 
+        // 소지금을 통해서 강화를 진행하는 것이므로 소지금을 확인할 수 있어야함
         int DepositGold = Convert.ToInt32(GameData.NowGold);
         int DepositGem = Convert.ToInt32(GameData.NowGem);
 
@@ -74,7 +81,7 @@ public class ButtonController : MonoBehaviour
 
         ScriptType = GameController.GetComponent<EnhanceAchievement>().GetType();
 
-        
+        // 클릭파워와 같이 여러번 강화 가능한 오브젝트인지 확인할 수 있는 오브젝트를 추가해둠
         if (result && obj.transform.Find("IsRecursive").Find("Value").GetComponent<TextMeshProUGUI>().text == "True")
         {
             ScriptType.GetMethod(obj.name).Invoke(GameController.GetComponent<EnhanceAchievement>(), new object[] { obj });
@@ -95,7 +102,8 @@ public class ButtonController : MonoBehaviour
         {
             RequestObject = GameController.GetComponent<GameController>().REQUESTOBJECT;
 
-            if (RequestObject.transform.parent.parent.parent.name == "Achievement") AchieveManager(RequestObject);
+            if (RequestObject.transform.parent.name == "Setting") GameObject.Find("Data").GetComponent<DataController>().DeleteGameData();
+            else if (RequestObject.transform.parent.parent.parent.name == "Achievement") AchieveManager(RequestObject);
             else if (RequestObject.transform.parent.parent.parent.name == "Enhance") EnhanceManager(RequestObject);
         }
     }
@@ -110,6 +118,7 @@ public class ButtonController : MonoBehaviour
     {
         GameObject obj;
 
+        // 알의 위치는 계층구조에서 항상 고정
         if (Canvas.transform.GetChild(1).gameObject.name == "EggButton")
         {
             obj = Canvas.transform.Find("EggButton").gameObject;
@@ -158,8 +167,9 @@ public class ButtonController : MonoBehaviour
                     obj.gameObject.name = "EggButton";
                 }
 
+                // 현재 클릭횟수 초기화 및 알 체력 증가
                 GameData.NowClickCount = 0;
-                //GameData.NeedClickCount *= 2;
+                GameData.NeedClickCount *= 2;
             }
         }
         else
@@ -184,7 +194,7 @@ public class ButtonController : MonoBehaviour
                 Character.transform.localScale = new Vector3(50.0f, 50.0f, 50.0f);
                 Character.transform.parent = Caffe.transform.Find("ScreenPanels").Find("Field");
                 Character.transform.position = Caffe.transform.position;
-                for(int j = 0; j < 4; j++) Character.transform.Find("BaseCharacter").Find("Buttons").Find("Button" + Convert.ToString(j)).GetComponent<Button>().onClick.AddListener(delegate { SaveRequestObject(Character); });
+                GameData.MovedCharacterNum++;
 
             }
 
@@ -208,14 +218,9 @@ public class ButtonController : MonoBehaviour
     public void CameraModeManager()
     {
         string tag = GameController.GetComponent<GameController>().REQUESTOBJECT.tag;
-        Vector3 originpsotion = GameController.GetComponent<GameController>().ORIGINCAMERAPOSITION;
-        Vector3 cameraposition = GameObject.Find("Caffe Camera").GetComponent<Camera>().transform.position;
 
-        if (tag == "Person" || tag == "Animal" || tag == "Etc")
-        {
-            if (cameraposition == originpsotion) GameController.GetComponent<GameController>().SetIsCameraOn(true);
-            else GameController.GetComponent<GameController>().SetIsCameraOn(false);
-        }
+        // 캐릭터인 경우에만 카메라 모드에 진입할 수 있음
+        if (tag == "Person" || tag == "Animal" || tag == "Etc") GameController.GetComponent<GameController>().SetIsCameraOn(true);
     }
     public void ChangeSceneManager(String name)
     {
@@ -237,6 +242,7 @@ public class ButtonController : MonoBehaviour
     }
     public void SaveRequestObject(GameObject obj)
     {
+        // 작업을 요청한 오브젝트를 GameController에 저장
         GameController.GetComponent<GameController>().SaveRequestObejct(obj);
     }
     private void Awake()
@@ -264,34 +270,46 @@ public class ButtonController : MonoBehaviour
 
         if (GameData != null)
         {
-            if (this.name == "Button" && this.transform.parent.parent.parent.parent.name == "Enhance")
+            if (this.name == "Button" && this.transform.parent.name == "Setting")
             {
-                // 데이터에서 강화 변수를 리플렉션으로 값을 얻어와 판단하고 UI 액티브 설정
-                GameDataType = GameData.GetType();
 
-                if (GameDataType.GetField(transform.parent.name).GetValue(GameData) != null)
+            }
+            else
+            {
+                if (this.name == "Button" && this.transform.parent.parent.parent.parent.name == "Enhance")
                 {
+                    // 데이터에서 강화 변수를 리플렉션으로 값을 얻어와 판단하고 UI 액티브 설정
+                    GameDataType = GameData.GetType();
 
-                    bool Clear = Convert.ToBoolean(GameDataType.GetField(transform.parent.name).GetValue(GameData));
-
-                    // 반복적으로 강화가 가능한 경우 계속해서 업데이트 해줘야함
-
-                    if (transform.parent.Find("IsRecursive").Find("Value").GetComponent<TextMeshProUGUI>().text == "True")
+                    if (GameDataType.GetField(transform.parent.name).GetValue(GameData) != null)
                     {
-                        transform.parent.Find("Cost").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.CostForClickPower);
-                    }
-                    else
-                    {
-                        // 선행조건이 필요한 강화의 경우 처음에 비활성화
-                        if (transform.parent.Find("Prerequisites").GetComponent<TextMeshProUGUI>().text != "None")
+
+                        bool Clear = Convert.ToBoolean(GameDataType.GetField(transform.parent.name).GetValue(GameData));
+
+                        // 반복적으로 강화가 가능한 경우 계속해서 업데이트 해줘야함
+
+                        if (transform.parent.Find("IsRecursive").Find("Value").GetComponent<TextMeshProUGUI>().text == "True")
                         {
-                            bool PreClear = Convert.ToBoolean(GameDataType.GetField(transform.parent.Find("Prerequisites").GetComponent<TextMeshProUGUI>().text).GetValue(GameData));
-
-                            transform.parent.Find("CanNotUse").gameObject.SetActive(!PreClear);
-
-                            if (!PreClear)
+                            transform.parent.Find("Cost").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.CostForClickPower);
+                        }
+                        else
+                        {
+                            // 선행조건이 필요한 강화의 경우 처음에 비활성화
+                            if (transform.parent.Find("Prerequisites").GetComponent<TextMeshProUGUI>().text != "None")
                             {
-                                GetComponent<Button>().interactable = PreClear;
+                                bool PreClear = Convert.ToBoolean(GameDataType.GetField(transform.parent.Find("Prerequisites").GetComponent<TextMeshProUGUI>().text).GetValue(GameData));
+
+                                transform.parent.Find("CanNotUse").gameObject.SetActive(!PreClear);
+
+                                if (!PreClear)
+                                {
+                                    GetComponent<Button>().interactable = PreClear;
+                                }
+                                else
+                                {
+                                    transform.parent.transform.Find("Complete").gameObject.SetActive(Clear);
+                                    GetComponent<Button>().interactable = !Clear;
+                                }
                             }
                             else
                             {
@@ -299,51 +317,46 @@ public class ButtonController : MonoBehaviour
                                 GetComponent<Button>().interactable = !Clear;
                             }
                         }
-                        else
-                        {
-                            transform.parent.transform.Find("Complete").gameObject.SetActive(Clear);
-                            GetComponent<Button>().interactable = !Clear;
-                        }
                     }
                 }
-            }
-            else if (this.name == "Button" && this.transform.parent.parent.parent.parent.name == "Achievement")
-            {
-                GameDataType = GameData.GetType();
-                ScriptType = GameController.GetComponent<EnhanceAchievement>().GetType();
-
-                // 데이터에서 업적 변수를 리플렉션
-                if (GameDataType.GetField(transform.parent.name) != null)
+                else if (this.name == "Button" && this.transform.parent.parent.parent.parent.name == "Achievement")
                 {
-                    bool Clear = Convert.ToBoolean(GameDataType.GetField(transform.parent.name).GetValue(GameData));
-                    bool Acquire = Convert.ToBoolean(GameDataType.GetField("Acquire" + transform.parent.name).GetValue(GameData));
+                    GameDataType = GameData.GetType();
+                    ScriptType = GameController.GetComponent<EnhanceAchievement>().GetType();
 
-                    if (Clear)
+                    // 데이터에서 업적 변수를 리플렉션
+                    if (GameDataType.GetField(transform.parent.name) != null)
                     {
-                        if (Acquire)
+                        bool Clear = Convert.ToBoolean(GameDataType.GetField(transform.parent.name).GetValue(GameData));
+                        bool Acquire = Convert.ToBoolean(GameDataType.GetField("Acquire" + transform.parent.name).GetValue(GameData));
+
+                        if (Clear)
                         {
-                            transform.parent.transform.Find("Complete").gameObject.SetActive(Clear);
-                            GetComponent<Button>().interactable = !Clear;
+                            if (Acquire)
+                            {
+                                transform.parent.transform.Find("Complete").gameObject.SetActive(Clear);
+                                GetComponent<Button>().interactable = !Clear;
+                            }
+                            else
+                            {
+                                transform.parent.transform.Find("Complete").gameObject.SetActive(!Clear);
+                                GetComponent<Button>().interactable = Clear;
+                            }
                         }
                         else
                         {
-                            transform.parent.transform.Find("Complete").gameObject.SetActive(!Clear);
-                            GetComponent<Button>().interactable = Clear;
-                        }
-                    }
-                    else
-                    {
-                        bool result = false;
+                            bool result = false;
 
-                        if (ScriptType.GetMethod(transform.parent.name) != null)
-                        {
-                            // 스크립트에서 해당 변수와 동일한 이름의 함수를 리플렉션으로 실행
-                            // 값을 리턴 받아서 업적 데이터 갱신
-                            result = Convert.ToBoolean(ScriptType.GetMethod(transform.parent.name).Invoke(GameController.GetComponent<EnhanceAchievement>(), null));
-                            GameDataType.GetField(transform.parent.name).SetValue(GameData, result);
-                        }
+                            if (ScriptType.GetMethod(transform.parent.name) != null)
+                            {
+                                // 스크립트에서 해당 변수와 동일한 이름의 함수를 리플렉션으로 실행
+                                // 값을 리턴 받아서 업적 데이터 갱신
+                                result = Convert.ToBoolean(ScriptType.GetMethod(transform.parent.name).Invoke(GameController.GetComponent<EnhanceAchievement>(), null));
+                                GameDataType.GetField(transform.parent.name).SetValue(GameData, result);
+                            }
 
-                        GetComponent<Button>().interactable = (result);
+                            GetComponent<Button>().interactable = (result);
+                        }
                     }
                 }
             }

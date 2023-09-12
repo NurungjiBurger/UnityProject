@@ -43,6 +43,7 @@ public class EnhanceAchievement : MonoBehaviour
     {
         EnhanceTimeStack(2);
     }
+
     /////////////////////////////////////////////
     ///// Achievement
     public bool FirstCharacter()

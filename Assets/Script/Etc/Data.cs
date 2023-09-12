@@ -26,6 +26,7 @@ public class Data
     public int ClickPower = 1;
     public int CostForClickPower = 100;
 
+    public int MovedCharacterNum = 0;
     public int CharacterNum = 0;
     public int PersonNum = 0;
     public int AnimalNum = 0;
@@ -65,9 +66,6 @@ public class Data
     // 컬렉션 업적
 
 
-    // 설정 데이터
-    // 배경소리
-    // 효과음
 
 }
 

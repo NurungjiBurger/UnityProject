@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using System.IO;
 
 public class DataController : MonoBehaviour
 {
-    private string DataFile = "database.json";
+    private string DataFile = "Data/database.json";
     private string FilePath;
 
     private Data GameData;
@@ -17,7 +18,16 @@ public class DataController : MonoBehaviour
     // 게임데이터 삭제
     public void DeleteGameData()
     {
-        File.Delete(FilePath);
+        FileInfo file_info = new FileInfo(FilePath);
+
+        if(File.Exists(FilePath))
+        {
+            Debug.Log(FilePath + " /// " + DataFile + " /// " + GameData);
+            //FileUtil.DeleteFileOrDirectory(FilePath);
+            //file_info.Delete();
+            File.Delete(FilePath);
+        }
+        GameObject.Find("GameController").GetComponent<GameController>().ExitGame();
     }
 
     // 게임데이터 저장
@@ -32,6 +42,7 @@ public class DataController : MonoBehaviour
     // 새로운 게임데이터 생성
     public void NewGameData()
     {
+        Debug.Log("새게임 생성");
         GameData = new Data();
     }
 
@@ -55,7 +66,7 @@ public class DataController : MonoBehaviour
     private void Awake()
     {
         // 안드로이드용 패스
-        //filePath = Application.persistentDataPath + dataFile;
+        //FilePath = Application.persistentDataPath + DataFile;
         // PC용 패스 ( 테스트용 )
         FilePath = Path.Combine(Application.dataPath, DataFile);
 
