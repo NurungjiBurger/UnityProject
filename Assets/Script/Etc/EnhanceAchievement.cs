@@ -44,6 +44,20 @@ public class EnhanceAchievement : MonoBehaviour
         EnhanceTimeStack(2);
     }
 
+    public void FirstHatchProbabilityEnhance(GameObject obj)
+    {
+        GameData.HatchProbability += 10;
+    }
+    
+    public void SecondHatchProbabilityEnhance(GameObject obj)
+    {
+        GameData.HatchProbability += 5;
+    }
+    public void ThirdHatchProbabilityEnhance(GameObject obj)
+    {
+        GameData.HatchProbability += 5;
+    }
+
     /////////////////////////////////////////////
     ///// Achievement
     public bool FirstCharacter()
@@ -57,6 +71,18 @@ public class EnhanceAchievement : MonoBehaviour
         return false;
     }
 
+    public bool GetFirstAnimal()
+    {
+        if (GameData.AnimalNum != 0) return true;
+        return false;
+    }
+
+    public bool GetFirstEtc()
+    {
+        if (GameData.EtcNum != 0) return true;
+        return false;
+    }
+
     public bool FirstEnhance()
     {
         if (GameData.EnhanceNum != 0) return true;
@@ -65,6 +91,21 @@ public class EnhanceAchievement : MonoBehaviour
     public bool UseGold1000()
     {
         if (GameData.Gold - GameData.NowGold >= 1000) return true;
+        return false;
+    }
+    public bool UseGold100000()
+    {
+        if (GameData.Gold - GameData.NowGold >= 100000) return true;
+        return false;
+    }
+    public bool UseGem100()
+    {
+        if (GameData.Gem - GameData.NowGem >= 100) return true;
+        return false;
+    }
+    public bool UseGem2000()
+    {
+        if (GameData.Gem - GameData.NowGem >= 2000) return true;
         return false;
     }
     public bool UseTimeStack()
@@ -77,6 +118,13 @@ public class EnhanceAchievement : MonoBehaviour
         if (GameData.CharacterNum >= 10) return true;
         return false;
     }
+    public bool GetCharacter100()
+    {
+        if (GameData.CharacterNum >= 100) return true;
+        return false;
+    }
+
+
     private void Awake()
     {
 
