@@ -258,6 +258,8 @@ public class ButtonController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //if (GameObject.Find("Canvas").transform.Find("ScreenPanels").Find("Exit").gameObject.activeSelf && this.GetComponent<Button>()) this.GetComponent<Button>().interactable = false;
+
         if (GameController == null) GameController = GameObject.Find("GameController").GetComponent<GameController>().gameObject;
         else
         {

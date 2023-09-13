@@ -305,9 +305,10 @@ public class GameController : MonoBehaviour
             else
             {
                 // 현재 캐릭터를 선택한 상태인지 확인
-                if (SelectArrow == null) SelectArrow = GameObject.Find("Caffe").transform.Find("ScreenPanels").Find("Filed").Find("SelectArrow").gameObject;
+                if (SelectArrow == null) SelectArrow = GameObject.Find("Caffe").transform.Find("ScreenPanels").Find("Field").Find("SelectArrow").gameObject;
                 else
                 {
+                    // 캐릭터가 선택된 상태
                     if (RequestObejct != null)
                     {
                         // 카메라 모드로 진입
@@ -335,6 +336,7 @@ public class GameController : MonoBehaviour
                             CharacterCamera.GetComponent<Camera>().depth = -3;
                         }
                     }
+                    // 캐릭터가 선택되지 않은 상태
                     else
                     {
                         SelectArrow.SetActive(false);

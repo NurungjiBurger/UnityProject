@@ -5,22 +5,22 @@ using UnityEngine.Audio;
 using UnityEngine.UI;
 
 /*
-// ¿Àµð¿À ¼Ò½º »ý¼ºÇØ¼­ Ãß°¡
+// ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ò½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø¼ï¿½ ï¿½ß°ï¿½
 AudioSource audioSource = gameObject.AddComponent<AudioSource>();
 
-// ¹ÂÆ®: trueÀÏ °æ¿ì ¼Ò¸®°¡ ³ªÁö ¾ÊÀ½
+// ï¿½ï¿½Æ®: trueï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ò¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 audioSource.mute = false;
 
-// ·çÇÎ: trueÀÏ °æ¿ì ¹Ýº¹ Àç»ý
+// ï¿½ï¿½ï¿½ï¿½: trueï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ýºï¿½ ï¿½ï¿½ï¿½
 audioSource.loop = false;
 
-// ÀÚµ¿ Àç»ý: trueÀÏ °æ¿ì ÀÚµ¿ Àç»ý
+// ï¿½Úµï¿½ ï¿½ï¿½ï¿½: trueï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Úµï¿½ ï¿½ï¿½ï¿½
 audioSource.playOnAwake = false;
 
-// ¿Àµð¿À Àç»ý
+// ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 audioSource.Play();
 
-// ¿Àµð¿À Á¤Áö
+// ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 audioSource.Stop();
 */
 
@@ -50,7 +50,7 @@ public class AudioController : MonoBehaviour
                 MasterMixer.SetFloat("SFX", Mathf.Log10(val) * 20);
                 break;
             case "Master":
-                // ¸¶½ºÅÍ º¼·ýÀÇ °æ¿ì ¹è°æÀ½°ú È¿°úÀ½ ¸ðµÎ¸¦ Á¶ÀýÇØ¾ßÇÔ
+                // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Î¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø¾ï¿½ï¿½ï¿½
                 MasterMixer.SetFloat("Master", Mathf.Log10(val) * 20);
                 MasterMixer.SetFloat("BGM", Mathf.Log10(val) * 20);
                 MasterMixer.SetFloat("SFX", Mathf.Log10(val) * 20);
@@ -76,14 +76,14 @@ public class AudioController : MonoBehaviour
     }
     public void AudioPlay(AudioSource source)
     {
-        // ¹è°æÀ½À» Á¦¿ÜÇÑ ´Ù¸¥ ¿Àµð¿ÀÅ¬¸³µéÀº ÇØ´ç ½ºÅ©¸³Æ®¿¡ Å¬¸³À» À§Å¹ Àç»ýÇÏ´Â Çü½ÄÀÌ±â ¶§¹®¿¡ ÆÄ¶ó¹ÌÅÍ·Î ¼Ò½º°¡ ¾ø´Â°æ¿ì´Â ÇØ´ç ½ºÅ©¸³Æ®¿¡¼­ È£ÃâÇÑ °æ¿ì·Î ¸¸µë
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Å¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø´ï¿½ ï¿½ï¿½Å©ï¿½ï¿½Æ®ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¹ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ä¶ï¿½ï¿½ï¿½Í·ï¿½ ï¿½Ò½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â°ï¿½ï¿½ï¿½ ï¿½Ø´ï¿½ ï¿½ï¿½Å©ï¿½ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ È£ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (source == null) AudioSource.Play();
         else source.Play();
     }
     // Start is called before the first frame update
     void Start()
     {
-        DontDestroyOnLoad(gameObject);
+        //DontDestroyOnLoad(gameObject);
         AudioSource = GetComponent<AudioSource>();
     }
 
