@@ -1,10 +1,8 @@
 # 알 부수기
-
+  
 [PlayStore 다운로드](https://play.google.com/store/apps/details?id=com.SangbinPark.CrashEgg)
 
-<center>
 <img src = "Assets/ImageSource/MainIcon.png">
-</center>
 
 # 게임 소개
 알을 부수면서 캐릭터를 부화시키고 그를 통해 강화, 업적, 컬렉션을 채워나가는 킬링타임용 클리커게임입니다.
@@ -46,18 +44,17 @@
 
 # 플레이 화면
 
-<center>
-
-<img src = "Assets/ImageSource/GameImage5.jpg" width="150" height="300">
-<img src = "Assets/ImageSource/GameImage3.jpg" width="150" height="300">
-<img src = "Assets/ImageSource/GameImage4.jpg" width="150" height="300">
+<p align="center" width="100&">
+<img src = "Assets/ImageSource/GameImage5.jpg" width="30%" height="600">
+<img src = "Assets/ImageSource/GameImage3.jpg" width="30%" height="600">
+<img src = "Assets/ImageSource/GameImage4.jpg" width="30%" height="600">
 
 <br>
 
-<img src = "Assets/ImageSource/GameImage2.jpg" width="150" height="300">
-<img src = "Assets/ImageSource/GameImage0.jpg" width="150" height="300">
-<img src = "Assets/ImageSource/GameImage1.jpg" width="150" height="300">
-</center>
+<img src = "Assets/ImageSource/GameImage2.jpg" width="30%" height="600">
+<img src = "Assets/ImageSource/GameImage0.jpg" width="30%" height="600">
+<img src = "Assets/ImageSource/GameImage1.jpg" width="30%" height="600">
+</p>
 
 <br>
 
