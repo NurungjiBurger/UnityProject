@@ -99,8 +99,8 @@ public class GameController : MonoBehaviour
     {
         Canvas.transform.Find("UpPanels").Find("Gold").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.NowGold);
         Canvas.transform.Find("UpPanels").Find("Gem").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.NowGem);
-        Canvas.transform.Find("UpPanels").Find("Level").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.EggLevel);
-        Canvas.transform.Find("UpPanels").Find("HPRatio").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString((1.0 - (GameData.NowClickCount / GameData.NeedClickCount)) * 100) + "%";
+        Canvas.transform.Find("UpPanels").Find("Level").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.CharacterNum);
+        Canvas.transform.Find("UpPanels").Find("HPRatio").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString((Convert.ToInt32((1.0 - (GameData.NowClickCount / GameData.NeedClickCount)) * 100))) + "%";
         Canvas.transform.Find("UpPanels").Find("HP").Find("NowHP").GetComponent<Image>().fillAmount = 1.0f - (GameData.NowClickCount / GameData.NeedClickCount);
 
         // 남은 HP에 따라 EGG 의 이미지 변경
@@ -124,15 +124,15 @@ public class GameController : MonoBehaviour
     }
     private void ManageUserInform()
     {
-        UserInform.transform.Find("EggLevel").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.EggLevel);
-        UserInform.transform.Find("EggHP").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.NeedClickCount - GameData.NowClickCount);
-        UserInform.transform.Find("ClickPower").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.ClickPower);
-        UserInform.transform.Find("TimeStackNum").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.TimeStackNum);
-        UserInform.transform.Find("Gold").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.Gold);
-        UserInform.transform.Find("Gem").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.Gem);
-        UserInform.transform.Find("UpgradeCount").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.EnhanceNum);
-        UserInform.transform.Find("CharacterCount").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.CharacterNum);
-        UserInform.transform.Find("HatchProbabilty").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.HatchProbability) + " %";
+        UserInform.transform.Find("ViewPort").Find("EggLevel").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.EggLevel);
+        UserInform.transform.Find("ViewPort").Find("EggHP").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.NeedClickCount - GameData.NowClickCount);
+        UserInform.transform.Find("ViewPort").Find("ClickPower").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.ClickPower);
+        UserInform.transform.Find("ViewPort").Find("TimeStackNum").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.TimeStackNum);
+        UserInform.transform.Find("ViewPort").Find("Gold").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.Gold);
+        UserInform.transform.Find("ViewPort").Find("Gem").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.Gem);
+        UserInform.transform.Find("ViewPort").Find("UpgradeCount").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.EnhanceNum);
+        UserInform.transform.Find("ViewPort").Find("CharacterCount").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.CharacterNum);
+        UserInform.transform.Find("ViewPort").Find("HatchProbabilty").Find("Value").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.HatchProbability) + " %";
     }
     private void ManageColletionInform()
     {
@@ -165,14 +165,15 @@ public class GameController : MonoBehaviour
     }
     private void SetResolution()
     {
+        /*
         // 9 : 16 
         //Screen.SetResolution((3 / 4) * 1920, 1920, true);
 
         //Default 해상도 비율
-        float fixedAspectRatio = 9f / 16f;
+        //float fixedAspectRatio = 9f / 16f;
 
         //현재 해상도의 비율
-        float currentAspectRatio = (float)Screen.width / (float)Screen.height;
+        //float currentAspectRatio = (float)Screen.width / (float)Screen.height;
 
         //현재 해상도 가로 비율이 더 길 경우
         if (currentAspectRatio > fixedAspectRatio)
@@ -186,6 +187,11 @@ public class GameController : MonoBehaviour
             GameObject.Find("Canvas").GetComponent<CanvasScaler>().matchWidthOrHeight = 0;
             GameObject.Find("Caffe").GetComponent<CanvasScaler>().matchWidthOrHeight = 0;
         }
+        */
+        int setWidth = 1080;
+        int setHeight = 1920;
+
+        Screen.SetResolution(setWidth, setHeight, false);
     }
 
     private void CalculateTimeStack()
@@ -262,12 +268,14 @@ public class GameController : MonoBehaviour
 
     private void FixedUpdate()
     {
+
         if (GameData == null)
         {
             GameData = GameObject.Find("Data").GetComponent<DataController>().GAMEDATA;
         }
         else
         {
+
             // 누적된 스택 계산
             if (TimeStack < 0) CalculateTimeStack();
             // 카페에 있는 캐릭터 복구

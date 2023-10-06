@@ -16,6 +16,10 @@ public class Data
     public int NowGold = 0;
     public int NowGem = 0;
 
+    public float MasterVolume = 1.0f;
+    public float BGMVolume = 1.0f;
+    public float SFXVolume = 1.0f;
+
     // 캐릭터 데이터
     public List<CharacterData> CharacterDatas = new List<CharacterData>();
 
@@ -27,10 +31,13 @@ public class Data
     public int CostForClickPower = 100;
 
     public int MovedCharacterNum = 0;
+
     public int CharacterNum = 0;
+
     public int PersonNum = 0;
     public int AnimalNum = 0;
     public int EtcNum = 0;
+
     public int EnhanceNum = 0;
 
     public int Gold = 0;

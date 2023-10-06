@@ -88,10 +88,13 @@ public class ButtonController : MonoBehaviour
         }
         else
         {
-            GameDataType = GameData.GetType();
-            GameDataType.GetField(obj.gameObject.name).SetValue(GameData, result);
+            if (result)
+            {
+                GameDataType = GameData.GetType();
+                GameDataType.GetField(obj.gameObject.name).SetValue(GameData, result);
 
-            if (ScriptType.GetMethod(obj.name) != null) ScriptType.GetMethod(obj.name).Invoke(GameController.GetComponent<EnhanceAchievement>(), new object[] { obj });
+                if (ScriptType.GetMethod(obj.name) != null) ScriptType.GetMethod(obj.name).Invoke(GameController.GetComponent<EnhanceAchievement>(), new object[] { obj });
+            }
         }
     }
     public void PerformRequest()
@@ -130,8 +133,8 @@ public class ButtonController : MonoBehaviour
             {
                 // egg obj 삭제
                 Destroy(obj);
-                GameData.Gold += 100;
-                GameData.NowGold += 100;
+                GameData.Gold += GameData.EggLevel * 200;
+                GameData.NowGold += GameData.EggLevel * 200;
                 // 확률에 따라서 캐릭터 생성
                 if (Random.Range(0, 100) <= GameData.HatchProbability)
                 {
@@ -163,13 +166,14 @@ public class ButtonController : MonoBehaviour
                     obj = GameController.GetComponent<GameController>().CreatePrefab("Egg", 0, new Vector3(0.0f, 0.0f, 0.0f));
                     obj.transform.SetParent(Canvas.transform);
                     obj.transform.SetSiblingIndex(1);
-                    obj.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                    obj.transform.localPosition = new Vector3(-30.0f, -70.0f, 0.0f);
+                    obj.transform.localScale = new Vector3(4.0f, 2.0f, 2.0f);
                     obj.gameObject.name = "EggButton";
                 }
 
                 // 현재 클릭횟수 초기화 및 알 체력 증가
                 GameData.NowClickCount = 0;
-                GameData.NeedClickCount *= 2;
+                if ((GameData.EggLevel * 500 > GameData.NeedClickCount)) GameData.NeedClickCount = (int)((float)GameData.NeedClickCount * 1.2);
             }
         }
         else
@@ -289,7 +293,6 @@ public class ButtonController : MonoBehaviour
                         bool Clear = Convert.ToBoolean(GameDataType.GetField(transform.parent.name).GetValue(GameData));
 
                         // 반복적으로 강화가 가능한 경우 계속해서 업데이트 해줘야함
-
                         if (transform.parent.Find("IsRecursive").Find("Value").GetComponent<TextMeshProUGUI>().text == "True")
                         {
                             transform.parent.Find("Cost").Find("Quantity").GetComponent<TextMeshProUGUI>().text = Convert.ToString(GameData.CostForClickPower);

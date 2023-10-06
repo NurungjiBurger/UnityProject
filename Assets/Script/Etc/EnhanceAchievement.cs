@@ -26,6 +26,7 @@ public class EnhanceAchievement : MonoBehaviour
     {
         GameData.ClickPower += 1;
         GameData.CostForClickPower += (int)(GameData.CostForClickPower * 0.1f);
+        if (GameData.ClickPower > GameData.NeedClickCount) GameData.EggLevel++;
     }
     private void EnhanceTimeStack(int interval)
     {
@@ -113,7 +114,7 @@ public class EnhanceAchievement : MonoBehaviour
         if (GameData.TimeStackNum != 0) return true;
         return false;
     }
-    public bool GetChracter10()
+    public bool GetCharacter10()
     {
         if (GameData.CharacterNum >= 10) return true;
         return false;
