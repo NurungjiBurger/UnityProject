@@ -3,7 +3,7 @@
 [PlayStore 다운로드](https://play.google.com/store/apps/details?id=com.SangbinPark.CrashEgg)
 
 <center>
-<img src = "Assets/StoreAssets/GraphicSource/MainIcon.png">
+<img src = "Assets/ImageSource/MainIcon.png">
 </center>
 
 # 게임 소개
@@ -48,15 +48,15 @@
 
 <center>
 
-<img src = "Assets/StoreAssets/GraphicSource/GameImage5.jpg" width="150" height="300">
-<img src = "Assets/StoreAssets/GraphicSource/GameImage3.jpg" width="150" height="300">
-<img src = "Assets/StoreAssets/GraphicSource/GameImage4.jpg" width="150" height="300">
+<img src = "Assets/ImageSource/GameImage5.jpg" width="150" height="300">
+<img src = "Assets/ImageSource/GameImage3.jpg" width="150" height="300">
+<img src = "Assets/ImageSource/GameImage4.jpg" width="150" height="300">
 
 <br>
 
-<img src = "Assets/StoreAssets/GraphicSource/GameImage2.jpg" width="150" height="300">
-<img src = "Assets/StoreAssets/GraphicSource/GameImage0.jpg" width="150" height="300">
-<img src = "Assets/StoreAssets/GraphicSource/GameImage1.jpg" width="150" height="300">
+<img src = "Assets/ImageSource/GameImage2.jpg" width="150" height="300">
+<img src = "Assets/ImageSource/GameImage0.jpg" width="150" height="300">
+<img src = "Assets/ImageSource/GameImage1.jpg" width="150" height="300">
 </center>
 
 <br>
